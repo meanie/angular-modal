@@ -1,6 +1,6 @@
 {
   "name": "meanie-angular-modal",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "./release/meanie-angular-modal.js",
   "ignore": [
     "**/.*",

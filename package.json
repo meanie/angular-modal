@@ -1,7 +1,7 @@
 {
   "name": "meanie-angular-modal",
-  "description": "AngularJS module to replace and extend the built in $modal service",
-  "version": "1.0.0",
+  "description": "AngularJS module to provide a modal service",
+  "version": "1.0.1",
   "homepage": "https://github.com/meanie/angular-modal",
   "author": {
     "name": "Adam Buczynski",
