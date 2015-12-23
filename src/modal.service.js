@@ -157,7 +157,7 @@ angular.module('Modal.Service', [])
 
       //Append animated and resolve opened deferred
       return appendAnimated(modal.element, modal.parent).then(function() {
-        modal.openedDeferred.resolve(modalInstance);
+        modal.openedDeferred.resolve(true);
       }, function(reason) {
         modal.openedDeferred.reject(reason);
       });
@@ -176,19 +176,18 @@ angular.module('Modal.Service', [])
         return $q.when(true);
       }
 
+      //If overlay element present, remove it
+      if (overlayElement) {
+        $animate.leave(overlayElement);
+        overlayElement = null;
+      }
+
       //Did we get a result
       if (wasDismissed) {
         modal.resultDeferred.reject(result);
       }
       else {
         modal.resultDeferred.resolve(result);
-      }
-
-      //If overlay element present, remove it
-      if (overlayElement) {
-        $animate.leave(overlayElement).finally(function() {
-          overlayElement = null;
-        });
       }
 
       //Animate out
@@ -228,7 +227,7 @@ angular.module('Modal.Service', [])
         }
 
         //Name given? Merge with predefined configs
-        if (name && configs[name] !== 'undefined') {
+        if (name && typeof configs[name] !== 'undefined') {
           options = angular.extend({}, configs[name], options || {});
         }
         else if (name) {
