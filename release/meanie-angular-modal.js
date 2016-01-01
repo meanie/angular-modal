@@ -1,8 +1,8 @@
 /**
- * meanie-angular-modal - v1.0.3 - 24-11-2015
+ * meanie-angular-modal - v1.1.0 - 1-0-2016
  * https://github.com/meanie/angular-modal
  *
- * Copyright (c) 2015 Adam Buczynski <me@adambuczynski.com>
+ * Copyright (c) 2016 Adam Buczynski <me@adambuczynski.com>
  * License: MIT
  */
 (function(window, angular, undefined) {'use strict';
@@ -13,7 +13,113 @@
 angular.module('Modal.Service', [])
 
 /**
- * Service definition
+ * Modal stack service
+ */
+.factory('$modalStack', function $modalStack() {
+
+  //Base z-index
+  // var BASE_Z_INDEX = 10000;
+
+  //Stack of modals
+  var stack = [];
+
+  //Modal stack interface
+  return {
+
+    /**
+     * Get modal instances stack
+     */
+    get: function() {
+      return stack;
+    },
+
+    /**
+     * Check if there are open instances
+     */
+    isEmpty: function() {
+      return (stack.length === 0);
+    },
+
+    /**
+     * Add modal instance to stack
+     */
+    add: function(modalInstance) {
+      stack.push(modalInstance);
+      return stack.length - 1;
+    },
+
+    /**
+     * Remove modal instance from stack
+     */
+    remove: function(modalInstance) {
+      var index = stack.indexOf(modalInstance);
+      if (index > -1) {
+        stack.splice(index, 1);
+      }
+    }
+  };
+})
+
+/**
+ * Modal overlay service
+ */
+.factory('$modalOverlay', ['$animate', '$document', '$appendAnimated', function $modalOverlay($animate, $document, $appendAnimated) {
+
+  //Global overlay element
+  var overlayElement;
+  var bodyElement = $document.find('body').eq(0);
+
+  /**
+   * Modal overlay service
+   */
+  return {
+
+    /**
+     * Show overlay element
+     */
+    show: function(overlayClass) {
+
+      //Already visible?
+      if (overlayElement) {
+        return;
+      }
+
+      //Create element
+      overlayElement = angular.element('<div></div>').attr({
+        class: overlayClass
+      });
+
+      //Animate in
+      return $appendAnimated(overlayElement, bodyElement);
+    },
+
+    /**
+     * Hide overlay element
+     */
+    hide: function() {
+      if (overlayElement) {
+        $animate.leave(overlayElement);
+        overlayElement = null;
+      }
+    }
+  };
+}])
+
+/**
+ * Append animated helper
+ */
+.factory('$appendAnimated', ['$animate', function $appendAnimated($animate) {
+  return function(child, parent) {
+    var children = parent.children();
+    if (children.length > 0) {
+      return $animate.enter(child, parent, children[children.length - 1]);
+    }
+    return $animate.enter(child, parent);
+  };
+}])
+
+/**
+ * Modal service
  */
 .provider('$modal', function $modalProvider() {
 
@@ -70,17 +176,18 @@ angular.module('Modal.Service', [])
   /**
    * Service getter
    */
-  this.$get = ['$rootScope', '$q', '$templateRequest', '$injector', '$controller', '$compile', '$document', '$animate', function(
-    $rootScope, $q, $templateRequest, $injector,
-    $controller, $compile, $document, $animate
+  this.$get = ['$rootScope', '$q', '$templateRequest', '$injector', '$controller', '$compile', '$document', '$animate', '$modalStack', '$modalOverlay', '$appendAnimated', function(
+    $rootScope, $q, $templateRequest, $injector, $controller,
+    $compile, $document, $animate, $modalStack, $modalOverlay,
+    $appendAnimated
   ) {
 
     //Get defaults and configs
     var defaults = this.defaults;
     var configs = this.configs;
 
-    //Global overlay element
-    var overlayElement;
+    //Get body element
+    var bodyElement = $document.find('body').eq(0);
 
     /**
      * Helper to get template promise
@@ -112,31 +219,6 @@ angular.module('Modal.Service', [])
     }
 
     /**
-     * Append element to parent using the animate service
-     */
-    function appendAnimated(child, parent) {
-      var children = parent.children();
-      if (children.length > 0) {
-        return $animate.enter(child, parent, children[children.length - 1]);
-      }
-      return $animate.enter(child, parent);
-    }
-
-    /**
-     * Helper to create overlay element
-     */
-    function createOverlay(modalInstance, overlayClass) {
-
-      //Create element
-      overlayElement = angular.element('<div></div>').attr({
-        class: overlayClass
-      });
-
-      //Animate in
-      return appendAnimated(overlayElement, $document.find('body').eq(0));
-    }
-
-    /**
      * Helper to open a modal
      */
     function openModal(modalInstance) {
@@ -163,8 +245,14 @@ angular.module('Modal.Service', [])
         });
       }
 
+      //Add to stack and show overlay
+      $modalStack.add(modalInstance);
+      if (modal.showOverlay) {
+        $modalOverlay.show(modal.overlayClass);
+      }
+
       //Append animated and resolve opened deferred
-      return appendAnimated(modal.element, modal.parent).then(function() {
+      return $appendAnimated(modal.element, modal.parent).then(function() {
         modal.openedDeferred.resolve(true);
       }, function(reason) {
         modal.openedDeferred.reject(reason);
@@ -184,12 +272,6 @@ angular.module('Modal.Service', [])
         return $q.when(true);
       }
 
-      //If overlay element present, remove it
-      if (overlayElement) {
-        $animate.leave(overlayElement);
-        overlayElement = null;
-      }
-
       //Did we get a result
       if (wasDismissed) {
         modal.resultDeferred.reject(result);
@@ -200,6 +282,12 @@ angular.module('Modal.Service', [])
 
       //Animate out
       return $animate.leave(modal.element).then(function() {
+
+        //Remove from stack
+        $modalStack.remove(modalInstance);
+        if ($modalStack.isEmpty()) {
+          $modalOverlay.hide();
+        }
 
         //Clean up scope
         if (modal.scope) {
@@ -246,7 +334,7 @@ angular.module('Modal.Service', [])
         //Validate options
         options = angular.extend({}, defaults, options || {});
         options.resolve = options.resolve || {};
-        options.appendTo = options.appendTo || $document.find('body').eq(0);
+        options.appendTo = options.appendTo || bodyElement;
 
         //Must have either template or template url specified
         if (!options.template && !options.templateUrl) {
@@ -263,6 +351,8 @@ angular.module('Modal.Service', [])
           resultDeferred: $q.defer(),
           parent: options.appendTo,
           wrapperClass: options.wrapperClass,
+          overlayClass: options.overlayClass,
+          showOverlay: options.overlay,
           closeOnClick: options.closeOnClick
         };
 
@@ -336,11 +426,6 @@ angular.module('Modal.Service', [])
 
           //Open modal now
           openModal(modalInstance);
-
-          //Create overlay
-          if (options.overlay) {
-            createOverlay(modalInstance, options.overlayClass);
-          }
         }, function(reason) {
           modal.openedDeferred.reject(reason);
           modal.resultDeferred.reject(reason);
@@ -348,6 +433,16 @@ angular.module('Modal.Service', [])
 
         //Return modal instance
         return modalInstance;
+      },
+
+      /**
+       * Close all modals
+       */
+      closeAll: function() {
+        var stack = $modalStack.get();
+        angular.forEach(stack, function(modalInstance) {
+          closeModal(modalInstance, 'cancel', true);
+        });
       }
     };
 
