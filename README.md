@@ -6,35 +6,25 @@
 [![codacy](https://img.shields.io/codacy/51a759324f3f4fd69de66047696bc18b.svg)](https://www.codacy.com/app/meanie/angular-modal)
 [![Join the chat at https://gitter.im/meanie/meanie](https://img.shields.io/badge/gitter-join%20chat%20%E2%86%92-brightgreen.svg)](https://gitter.im/meanie/meanie?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-AngularJS module to provide a simple but flexible modal service
+An Angular service to predefine and display modal dialogs
 
 ## Installation
 
-You can install this package using `meanie`, `npm` or `bower`.
-
-### meanie
-
-```shell
-meanie install angular-modal
-```
-
-Then add `Modal.Service` as a dependency for your app:
-
-```js
-angular.module('App.MyModule', ['Modal.Service']);
-```
+You can install this package using `npm` or `bower`.
 
 ### npm
 
 ```shell
-npm install meanie-angular-modal
+npm install meanie-angular-modal --save
 ```
 
-Then add as a dependency for your app:
+Include the script `node_modules/meanie-angular-modal/release/meanie-angular-modal.js` in your build process, or add it via a `<script>` tag to your `index.html`:
 
-```js
-angular.module('App.MyModule', [require('meanie-angular-modal')]);
+```html
+<script src="node_modules/meanie-angular-modal/release/meanie-angular-modal.js"></script>
 ```
+
+Add `Modal.Service` as a dependency for your app.
 
 ### bower
 
@@ -42,17 +32,13 @@ angular.module('App.MyModule', [require('meanie-angular-modal')]);
 bower install meanie-angular-modal
 ```
 
-Add a `<script>` to your `index.html`:
+Include the script `bower_components/meanie-angular-modal/release/meanie-angular-modal.js` in your build process, or add it via a `<script>` tag to your `index.html`:
 
 ```html
-<script src="/bower_components/meanie-angular-modal/release/meanie-angular-modal.js"></script>
+<script src="bower_components/meanie-angular-modal/release/meanie-angular-modal.js"></script>
 ```
 
-Then add `Modal.Service` as a dependency for your app:
-
-```js
-angular.module('App.MyModule', ['Modal.Service']);
-```
+Add `Modal.Service` as a dependency for your app.
 
 ## Usage
 
@@ -142,8 +128,12 @@ Pull requests are welcome! Please create them against the [dev branch](https://g
 
 If you would like to contribute to Meanie, please check out the [Meanie contributing guidelines](https://github.com/meanie/meanie/blob/master/CONTRIBUTING.md).
 
+## Credits
+
+Inspired by the modal service of UI Bootstrap.
+
 ## License
 
 (MIT License)
 
-Copyright 2015, [Adam Buczynski](http://adambuczynski.com)
+Copyright 2015-2016, [Adam Buczynski](http://adambuczynski.com)
