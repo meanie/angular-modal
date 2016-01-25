@@ -328,7 +328,7 @@ angular.module('Modal.Service', [])
         }
         else if (name) {
           throw new Error('String given as options, but config with name ' +
-            options + ' was not predefined');
+            name + ' was not predefined');
         }
 
         //Validate options
