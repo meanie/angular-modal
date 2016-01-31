@@ -267,7 +267,7 @@ angular.module('Modal.Service', [])
 
       //Call on before close handler if given
       if (typeof modal.onBeforeClose === 'function') {
-        let outcome = modal.onBeforeClose(modalInstance, result, wasDismissed);
+        var outcome = modal.onBeforeClose(modalInstance, result, wasDismissed);
         if (outcome !== true && outcome !== undefined) {
           return $q.reject(outcome);
         }
