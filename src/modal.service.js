@@ -131,7 +131,8 @@ angular.module('Modal.Service', [])
     appendTo: null,
     overlay: true,
     wrapperClass: 'modal-wrapper',
-    overlayClass: 'modal-overlay'
+    overlayClass: 'modal-overlay',
+    onBeforeClose: null
   };
 
   /**
@@ -264,6 +265,14 @@ angular.module('Modal.Service', [])
         return $q.when(true);
       }
 
+      //Call on before close handler if given
+      if (typeof modal.onBeforeClose === 'function') {
+        let outcome = modal.onBeforeClose(modalInstance, result, wasDismissed);
+        if (outcome !== true && outcome !== undefined) {
+          return $q.reject(outcome);
+        }
+      }
+
       //Did we get a result
       if (wasDismissed) {
         modal.resultDeferred.reject(result);
@@ -345,7 +354,8 @@ angular.module('Modal.Service', [])
           wrapperClass: options.wrapperClass,
           overlayClass: options.overlayClass,
           showOverlay: options.overlay,
-          closeOnClick: options.closeOnClick
+          closeOnClick: options.closeOnClick,
+          onBeforeClose: options.onBeforeClose
         };
 
         //Create modal instance
