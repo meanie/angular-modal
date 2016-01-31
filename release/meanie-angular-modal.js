@@ -1,5 +1,5 @@
 /**
- * meanie-angular-modal - v1.3.0 - 1-1-2016
+ * meanie-angular-modal - v1.3.1 - 1-1-2016
  * https://github.com/meanie/angular-modal
  *
  * Copyright (c) 2016 Adam Buczynski <me@adambuczynski.com>
@@ -277,7 +277,7 @@ angular.module('Modal.Service', [])
       if (typeof modal.onBeforeClose === 'function') {
         var outcome = modal.onBeforeClose(modalInstance, result, wasDismissed);
         if (outcome !== true && outcome !== undefined) {
-          return $q.reject(outcome);
+          return $q.reject(outcome || 'Close prevented');
         }
       }
 
