@@ -269,7 +269,7 @@ angular.module('Modal.Service', [])
       if (typeof modal.onBeforeClose === 'function') {
         var outcome = modal.onBeforeClose(modalInstance, result, wasDismissed);
         if (outcome !== true && outcome !== undefined) {
-          return $q.reject(outcome);
+          return $q.reject(outcome || 'Close prevented');
         }
       }
 

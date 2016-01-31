@@ -66,11 +66,15 @@ angular.module('App.MyModule').controller('MyController', function($modal) {
   //Close the modal
   modalInstance.close(result).then(function() {
     //modal is closed with given result
+  }).catch(function(reason) {
+    //modal close was prevent for the given reason
   });
 
   //Dismiss the modal
   modalInstance.dismiss(reason).then(function() {
     //modal dismissed with given reason
+  }).catch(function(reason) {
+    //modal dismissal was prevent for the given reason
   });
 });
 ```
@@ -114,8 +118,24 @@ var modalOptions = {
   appendTo: null,
   overlay: true,
   wrapperClass: 'modal-wrapper',
-  overlayClass: 'modal-overlay'
+  overlayClass: 'modal-overlay',
+  onBeforeClose: null
 };
+```
+
+You can use the `onBeforeClose` handler as follows:
+
+```js
+onBeforeClose: function(modalInstance, result, wasDismissed) {
+
+  //Return true or nothing at all to allow the modal to be closed.
+  return true;
+
+  //Return anything else to prevent closing the modal.
+  //The value you return will be used as the reject reason for the
+  //promise that is returned by the close() and dismiss() methods.
+  return 'Something went wrong';
+}
 ```
 
 ## Issues & feature requests
