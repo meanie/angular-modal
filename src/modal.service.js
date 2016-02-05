@@ -281,14 +281,14 @@ angular.module('Modal.Service', [])
         modal.resultDeferred.resolve(result);
       }
 
+      //Remove from stack
+      $modalStack.remove(modalInstance);
+      if ($modalStack.isEmpty()) {
+        $modalOverlay.hide();
+      }
+
       //Animate out
       return $animate.leave(modal.element).then(function() {
-
-        //Remove from stack
-        $modalStack.remove(modalInstance);
-        if ($modalStack.isEmpty()) {
-          $modalOverlay.hide();
-        }
 
         //Clean up scope
         if (modal.scope) {
