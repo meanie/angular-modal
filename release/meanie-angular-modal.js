@@ -1,5 +1,5 @@
 /**
- * meanie-angular-modal - v1.3.1 - 1-1-2016
+ * meanie-angular-modal - v1.3.2 - 6-1-2016
  * https://github.com/meanie/angular-modal
  *
  * Copyright (c) 2016 Adam Buczynski <me@adambuczynski.com>
@@ -289,14 +289,14 @@ angular.module('Modal.Service', [])
         modal.resultDeferred.resolve(result);
       }
 
+      //Remove from stack
+      $modalStack.remove(modalInstance);
+      if ($modalStack.isEmpty()) {
+        $modalOverlay.hide();
+      }
+
       //Animate out
       return $animate.leave(modal.element).then(function() {
-
-        //Remove from stack
-        $modalStack.remove(modalInstance);
-        if ($modalStack.isEmpty()) {
-          $modalOverlay.hide();
-        }
 
         //Clean up scope
         if (modal.scope) {
