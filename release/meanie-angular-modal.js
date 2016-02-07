@@ -1,5 +1,5 @@
 /**
- * meanie-angular-modal - v1.3.2 - 6-1-2016
+ * meanie-angular-modal - v1.3.3 - 8-1-2016
  * https://github.com/meanie/angular-modal
  *
  * Copyright (c) 2016 Adam Buczynski <me@adambuczynski.com>
@@ -337,7 +337,7 @@ angular.module('Modal.Service', [])
         }
         else if (name) {
           throw new Error('String given as options, but config with name ' +
-            options + ' was not predefined');
+            name + ' was not predefined');
         }
 
         //Validate options
