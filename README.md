@@ -8,6 +8,8 @@
 
 An Angular service to predefine and display modal dialogs
 
+![Meanie](https://raw.githubusercontent.com/meanie/meanie/master/meanie-logo-full.png)
+
 ## Installation
 
 You can install this package using `npm` or `bower`.
@@ -144,13 +146,12 @@ Please report any bugs, issues, suggestions and feature requests in the [meanie-
 
 ## Contributing
 
-Pull requests are welcome! Please create them against the [dev branch](https://github.com/meanie/angular-modal/tree/dev) of the repository.
-
-If you would like to contribute to Meanie, please check out the [Meanie contributing guidelines](https://github.com/meanie/meanie/blob/master/CONTRIBUTING.md).
+Pull requests are welcome! If you would like to contribute to Meanie, please check out the [Meanie contributing guidelines](https://github.com/meanie/meanie/blob/master/CONTRIBUTING.md).
 
 ## Credits
 
-Inspired by the modal service of UI Bootstrap.
+* Inspired by the modal service of UI Bootstrap.
+* Meanie logo designed by [Quan-Lin Sim](mailto:quan.lin.sim+meanie@gmail.com)
 
 ## License
 
