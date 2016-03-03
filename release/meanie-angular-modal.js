@@ -1,5 +1,5 @@
 /**
- * meanie-angular-modal - v1.3.3 - 8-1-2016
+ * meanie-angular-modal - v1.4.0 - 4-2-2016
  * https://github.com/meanie/angular-modal
  *
  * Copyright (c) 2016 Adam Buczynski <me@adambuczynski.com>
@@ -38,6 +38,27 @@ angular.module('Modal.Service', [])
      */
     isEmpty: function() {
       return (stack.length === 0);
+    },
+
+    /**
+     * Check if a specific modal is open
+     */
+    isOpen: function(name) {
+
+      //Can't distinguish unnamed modals
+      if (!name) {
+        return false;
+      }
+
+      //Check if open
+      for (var i = 0; i < stack.length; i++) {
+        if (stack[i].name === name) {
+          return true;
+        }
+      }
+
+      //Not open
+      return false;
     },
 
     /**
@@ -369,6 +390,7 @@ angular.module('Modal.Service', [])
         //Create modal instance
         var modalInstance = {
           $$modal: modal,
+          name: name,
           opened: modal.openedDeferred.promise,
           result: modal.resultDeferred.promise,
           close: function(result) {
@@ -453,6 +475,13 @@ angular.module('Modal.Service', [])
         angular.forEach(stack, function(modalInstance) {
           closeModal(modalInstance, 'cancel', true);
         });
+      },
+
+      /**
+       * Check if a specific modal is open
+       */
+      isOpen: function(name) {
+        return $modalStack.isOpen(name);
       }
     };
 
