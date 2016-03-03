@@ -78,6 +78,9 @@ angular.module('App.MyModule').controller('MyController', function($modal) {
   }).catch(function(reason) {
     //modal dismissal was prevent for the given reason
   });
+
+  //Close all open modals
+  $modal.closeAll();
 });
 ```
 
@@ -99,6 +102,11 @@ angular.module('App.MyModule').config(function($modalProvider) {
       someDep: someValue
     }
   });
+
+  //Check if a named modal is open
+  if ($modal.isOpen('myModal')) {
+    //Modal is currently open
+  }
 });
 ```
 
