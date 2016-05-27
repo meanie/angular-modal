@@ -1,5 +1,5 @@
 /**
- * meanie-angular-modal - v1.4.0 - 4-2-2016
+ * meanie-angular-modal - v1.5.0 - 28-4-2016
  * https://github.com/meanie/angular-modal
  *
  * Copyright (c) 2016 Adam Buczynski <me@adambuczynski.com>
@@ -16,9 +16,6 @@ angular.module('Modal.Service', [])
  * Modal stack service
  */
 .factory('$modalStack', function $modalStack() {
-
-  //Base z-index
-  // var BASE_Z_INDEX = 10000;
 
   //Stack of modals
   var stack = [];
@@ -38,6 +35,13 @@ angular.module('Modal.Service', [])
      */
     isEmpty: function() {
       return (stack.length === 0);
+    },
+
+    /**
+     * Get number of modals that are open
+     */
+    numOpen: function() {
+      return stack.length;
     },
 
     /**
@@ -62,11 +66,25 @@ angular.module('Modal.Service', [])
     },
 
     /**
+     * Check if a specific modal is last
+     */
+    isLast: function(name) {
+
+      //Can't distinguish unnamed modals or work with an empty stack
+      if (!name || stack.length === 0) {
+        return false;
+      }
+
+      //Get last modal and compare name
+      var last = stack[stack.length - 1];
+      return (last.name === name);
+    },
+
+    /**
      * Add modal instance to stack
      */
     add: function(modalInstance) {
       stack.push(modalInstance);
-      return stack.length - 1;
     },
 
     /**
@@ -121,6 +139,16 @@ angular.module('Modal.Service', [])
       if (overlayElement) {
         $animate.leave(overlayElement);
         overlayElement = null;
+      }
+    },
+
+    /**
+     * Set the proper z-index
+     */
+    setIndex: function(baseIndex, numModals) {
+      if (overlayElement) {
+        var zIndex = baseIndex + 2 * (numModals - 1);
+        overlayElement[0].style.zIndex = zIndex;
       }
     }
   };
@@ -205,6 +233,7 @@ angular.module('Modal.Service', [])
   ) {
 
     //Get defaults and configs
+    var baseIndex = 10000;
     var defaults = this.defaults;
     var configs = this.configs;
 
@@ -247,12 +276,14 @@ angular.module('Modal.Service', [])
 
       //Access modal data object
       var modal = modalInstance.$$modal;
+      var numModals = $modalStack.numOpen() + 1;
 
       //Create then compile modal element
       modal.element = angular.element('<div></div>').attr({
         class: modal.wrapperClass
       }).html(modal.content);
       modal.element = $compile(modal.element)(modal.scope);
+      modal.element[0].style.zIndex = baseIndex + (2 * numModals) - 1;
 
       //Close on click?
       if (modal.closeOnClick) {
@@ -271,6 +302,7 @@ angular.module('Modal.Service', [])
       $modalStack.add(modalInstance);
       if (modal.showOverlay) {
         $modalOverlay.show(modal.overlayClass);
+        $modalOverlay.setIndex(baseIndex, numModals);
       }
 
       //Append animated and resolve opened deferred
@@ -288,6 +320,7 @@ angular.module('Modal.Service', [])
 
       //Access modal data object
       var modal = modalInstance.$$modal;
+      var numModals = $modalStack.numOpen() - 1;
 
       //No element present?
       if (!modal.element) {
@@ -314,6 +347,9 @@ angular.module('Modal.Service', [])
       $modalStack.remove(modalInstance);
       if ($modalStack.isEmpty()) {
         $modalOverlay.hide();
+      }
+      else {
+        $modalOverlay.setIndex(baseIndex, numModals);
       }
 
       //Animate out
@@ -387,7 +423,7 @@ angular.module('Modal.Service', [])
           onBeforeClose: options.onBeforeClose
         };
 
-        //Create modal instance
+        //Create modal instance interface
         var modalInstance = {
           $$modal: modal,
           name: name,
@@ -405,7 +441,7 @@ angular.module('Modal.Service', [])
         if (options.closeOnEsc) {
           modal.closeOnEsc = function(event) {
             var key = event.keyCode || event.which;
-            if (key === 27) {
+            if (key === 27 && $modalStack.isLast(name)) {
               $rootScope.$apply(function() {
                 closeModal(modalInstance, 'cancel', true);
               });
@@ -417,51 +453,53 @@ angular.module('Modal.Service', [])
         //Wait for template and resolves to resolve
         $q.all([
           getTemplatePromise(options.template, options.templateUrl)
-        ].concat(getResolvePromises(options.resolve))).then(function(resolves) {
+        ].concat(getResolvePromises(options.resolve)))
+          .then(function(resolves) {
 
-          //Get template content
-          modal.content = resolves.shift();
+            //Get template content
+            modal.content = resolves.shift();
 
-          //Determine modal scope and link close/dismiss handlers
-          modal.scope = (options.scope || $rootScope).$new();
-          modal.scope.$close = modalInstance.close;
-          modal.scope.$dismiss = modalInstance.dismiss;
+            //Determine modal scope and link close/dismiss handlers
+            modal.scope = (options.scope || $rootScope).$new();
+            modal.scope.$close = modalInstance.close;
+            modal.scope.$dismiss = modalInstance.dismiss;
 
-          //Controller given?
-          if (options.controller) {
+            //Controller given?
+            if (options.controller) {
 
-            //Initialize controller vars
-            var locals = {};
+              //Initialize controller vars
+              var locals = {};
 
-            //Provide scope and modal instance
-            locals.$scope = modal.scope;
-            locals.$modalInstance = modalInstance;
+              //Provide scope and modal instance
+              locals.$scope = modal.scope;
+              locals.$modalInstance = modalInstance;
 
-            //Provide other passed locals
-            if (options.locals && typeof options.locals === 'object') {
-              angular.forEach(options.locals, function(value, key) {
-                locals[key] = value;
+              //Provide other passed locals
+              if (options.locals && typeof options.locals === 'object') {
+                angular.forEach(options.locals, function(value, key) {
+                  locals[key] = value;
+                });
+              }
+
+              //Provide resolved values
+              angular.forEach(options.resolve, function(value, key) {
+                locals[key] = resolves.shift();
               });
+
+              //Create controller instance
+              modal.controller = $controller(options.controller, locals);
+              if (options.controllerAs) {
+                modal.scope[options.controllerAs] = modal.controller;
+              }
             }
 
-            //Provide resolved values
-            angular.forEach(options.resolve, function(value, key) {
-              locals[key] = resolves.shift();
-            });
-
-            //Create controller instance
-            modal.controller = $controller(options.controller, locals);
-            if (options.controllerAs) {
-              modal.scope[options.controllerAs] = modal.controller;
-            }
-          }
-
-          //Open modal now
-          openModal(modalInstance);
-        }, function(reason) {
-          modal.openedDeferred.reject(reason);
-          modal.resultDeferred.reject(reason);
-        });
+            //Open modal now
+            openModal(modalInstance);
+          })
+          .catch(function(reason) {
+            modal.openedDeferred.reject(reason);
+            modal.resultDeferred.reject(reason);
+          });
 
         //Return modal instance
         return modalInstance;

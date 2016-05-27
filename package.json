@@ -1,7 +1,7 @@
 {
   "name": "meanie-angular-modal",
   "description": "An Angular service to predefine and display modal dialogs",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "homepage": "https://github.com/meanie/angular-modal",
   "author": {
     "name": "Adam Buczynski",
