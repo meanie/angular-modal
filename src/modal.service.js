@@ -68,7 +68,7 @@ angular.module('Modal.Service', [])
       }
 
       //Get last modal and compare name
-      let last = stack[stack.length - 1];
+      var last = stack[stack.length - 1];
       return (last.name === name);
     },
 
@@ -139,7 +139,7 @@ angular.module('Modal.Service', [])
      */
     setIndex: function(baseIndex, numModals) {
       if (overlayElement) {
-        let zIndex = baseIndex + 2 * (numModals - 1);
+        var zIndex = baseIndex + 2 * (numModals - 1);
         overlayElement[0].style.zIndex = zIndex;
       }
     }
