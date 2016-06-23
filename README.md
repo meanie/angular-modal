@@ -110,6 +110,16 @@ angular.module('App.MyModule').config(function($modalProvider) {
 });
 ```
 
+Listen for enter key event
+
+```js
+$scope.$on('$modalEnterKey', function(modalInstance, event) {
+
+  //...do stuff and close modal
+  modalInstance.close();
+});
+```
+
 ## Configuration
 
 The following configuration options are available, along with their default values:

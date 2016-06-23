@@ -447,7 +447,7 @@ angular.module('Modal.Service', [])
         modal.broadcastEnter = function(event) {
           var key = event.keyCode || event.which;
           if (key === 13) {
-            $rootScope.$broadcast('$modalEnterKey', modalInstance);
+            $rootScope.$broadcast('$modalEnterKey', modalInstance, event);
           }
         };
         $document[0].addEventListener('keydown', modal.broadcastEnter);
