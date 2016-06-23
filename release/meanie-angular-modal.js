@@ -1,5 +1,5 @@
 /**
- * meanie-angular-modal - v1.6.0 - 23-5-2016
+ * meanie-angular-modal - v1.6.1 - 23-5-2016
  * https://github.com/meanie/angular-modal
  *
  * Copyright (c) 2016 Adam Buczynski <me@adambuczynski.com>
@@ -455,7 +455,7 @@ angular.module('Modal.Service', [])
         modal.broadcastEnter = function(event) {
           var key = event.keyCode || event.which;
           if (key === 13) {
-            $rootScope.$broadcast('$modalEnterKey', modalInstance);
+            $rootScope.$broadcast('$modalEnterKey', modalInstance, event);
           }
         };
         $document[0].addEventListener('keydown', modal.broadcastEnter);
