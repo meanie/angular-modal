@@ -1,5 +1,5 @@
 /**
- * meanie-angular-modal - v1.5.0 - 28-4-2016
+ * meanie-angular-modal - v1.6.0 - 23-5-2016
  * https://github.com/meanie/angular-modal
  *
  * Copyright (c) 2016 Adam Buczynski <me@adambuczynski.com>
@@ -364,7 +364,8 @@ angular.module('Modal.Service', [])
         //Remove element reference
         modal.element = null;
 
-        //Remove event listener
+        //Remove event listeners
+        $document[0].removeEventListener('keydown', modal.broadcastEnter);
         if (modal.closeOnEsc) {
           $document[0].removeEventListener('keydown', modal.closeOnEsc);
           modal.closeOnEsc = null;
@@ -449,6 +450,15 @@ angular.module('Modal.Service', [])
           };
           $document[0].addEventListener('keydown', modal.closeOnEsc);
         }
+
+        //Enter broadcast
+        modal.broadcastEnter = function(event) {
+          var key = event.keyCode || event.which;
+          if (key === 13) {
+            $rootScope.$broadcast('$modalEnterKey', modalInstance);
+          }
+        };
+        $document[0].addEventListener('keydown', modal.broadcastEnter);
 
         //Wait for template and resolves to resolve
         $q.all([
