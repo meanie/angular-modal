@@ -1,5 +1,5 @@
 /**
- * meanie-angular-modal - v1.6.1 - 23-5-2016
+ * meanie-angular-modal - v1.6.2 - 7-6-2016
  * https://github.com/meanie/angular-modal
  *
  * Copyright (c) 2016 Adam Buczynski <me@adambuczynski.com>
@@ -454,7 +454,7 @@ angular.module('Modal.Service', [])
         //Enter broadcast
         modal.broadcastEnter = function(event) {
           var key = event.keyCode || event.which;
-          if (key === 13) {
+          if (key === 13 && !event.defaultPrevented) {
             $rootScope.$broadcast('$modalEnterKey', modalInstance, event);
           }
         };
