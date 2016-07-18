@@ -1,5 +1,5 @@
 /**
- * meanie-angular-modal - v1.6.2 - 18-6-2016
+ * meanie-angular-modal - v1.6.3 - 18-6-2016
  * https://github.com/meanie/angular-modal
  *
  * Copyright (c) 2016 Adam Buczynski <me@adambuczynski.com>
