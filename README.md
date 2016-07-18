@@ -12,9 +12,7 @@ An Angular service to predefine and display modal dialogs
 
 ## Installation
 
-You can install this package using `npm` or `bower`.
-
-### npm
+You can install this package using `npm`:
 
 ```shell
 npm install meanie-angular-modal --save
@@ -24,20 +22,6 @@ Include the script `node_modules/meanie-angular-modal/release/meanie-angular-mod
 
 ```html
 <script src="node_modules/meanie-angular-modal/release/meanie-angular-modal.js"></script>
-```
-
-Add `Modal.Service` as a dependency for your app.
-
-### bower
-
-```shell
-bower install meanie-angular-modal
-```
-
-Include the script `bower_components/meanie-angular-modal/release/meanie-angular-modal.js` in your build process, or add it via a `<script>` tag to your `index.html`:
-
-```html
-<script src="bower_components/meanie-angular-modal/release/meanie-angular-modal.js"></script>
 ```
 
 Add `Modal.Service` as a dependency for your app.
