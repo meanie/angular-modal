@@ -1,12 +1,9 @@
 /**
- * meanie-angular-modal - v1.6.3 - 18-6-2016
- * https://github.com/meanie/angular-modal
+ * meanie-angular-modal * https://github.com/meanie/angular-modal
  *
  * Copyright (c) 2016 Adam Buczynski <me@adambuczynski.com>
  * License: MIT
  */
-'use strict';
-
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 (function (window, angular, undefined) {
