@@ -10,7 +10,7 @@ angular.module('Modal.Service', [])
 .factory('$modalStack', function $modalStack() {
 
   //Stack of modals
-  var stack = [];
+  let stack = [];
 
   //Modal stack interface
   return {
@@ -47,7 +47,7 @@ angular.module('Modal.Service', [])
       }
 
       //Check if open
-      for (var i = 0; i < stack.length; i++) {
+      for (let i = 0; i < stack.length; i++) {
         if (stack[i].name === name) {
           return true;
         }
@@ -68,7 +68,7 @@ angular.module('Modal.Service', [])
       }
 
       //Get last modal and compare name
-      var last = stack[stack.length - 1];
+      let last = stack[stack.length - 1];
       return (last.name === name);
     },
 
@@ -83,11 +83,11 @@ angular.module('Modal.Service', [])
      * Remove modal instance from stack
      */
     remove: function(modalInstance) {
-      var index = stack.indexOf(modalInstance);
+      let index = stack.indexOf(modalInstance);
       if (index > -1) {
         stack.splice(index, 1);
       }
-    }
+    },
   };
 })
 
@@ -97,8 +97,8 @@ angular.module('Modal.Service', [])
 .factory('$modalOverlay', function $modalOverlay($animate, $document, $appendAnimated) {
 
   //Global overlay element
-  var overlayElement;
-  var bodyElement = $document.find('body').eq(0);
+  let overlayElement;
+  let bodyElement = $document.find('body').eq(0);
 
   /**
    * Modal overlay service
@@ -117,7 +117,7 @@ angular.module('Modal.Service', [])
 
       //Create element
       overlayElement = angular.element('<div></div>').attr({
-        class: overlayClass
+        class: overlayClass,
       });
 
       //Animate in
@@ -139,10 +139,10 @@ angular.module('Modal.Service', [])
      */
     setIndex: function(baseIndex, numModals) {
       if (overlayElement) {
-        var zIndex = baseIndex + 2 * (numModals - 1);
+        let zIndex = baseIndex + 2 * (numModals - 1);
         overlayElement[0].style.zIndex = zIndex;
       }
-    }
+    },
   };
 })
 
@@ -151,7 +151,7 @@ angular.module('Modal.Service', [])
  */
 .factory('$appendAnimated', function $appendAnimated($animate) {
   return function(child, parent) {
-    var children = parent.children();
+    let children = parent.children();
     if (children.length > 0) {
       return $animate.enter(child, parent, children[children.length - 1]);
     }
@@ -181,7 +181,7 @@ angular.module('Modal.Service', [])
     overlay: true,
     wrapperClass: 'modal-wrapper',
     overlayClass: 'modal-overlay',
-    onBeforeClose: null
+    onBeforeClose: null,
   };
 
   /**
@@ -225,12 +225,12 @@ angular.module('Modal.Service', [])
   ) {
 
     //Get defaults and configs
-    var baseIndex = 10000;
-    var defaults = this.defaults;
-    var configs = this.configs;
+    let baseIndex = 10000;
+    let defaults = this.defaults;
+    let configs = this.configs;
 
     //Get body element
-    var bodyElement = $document.find('body').eq(0);
+    let bodyElement = $document.find('body').eq(0);
 
     /**
      * Helper to get template promise
@@ -246,7 +246,7 @@ angular.module('Modal.Service', [])
      * Helper to get resolve promises
      */
     function getResolvePromises(resolves) {
-      var promises = [];
+      let promises = [];
       angular.forEach(resolves, function(item) {
         if (angular.isFunction(item) || angular.isArray(item)) {
           promises.push($q.when($injector.invoke(item)));
@@ -267,12 +267,12 @@ angular.module('Modal.Service', [])
     function openModal(modalInstance) {
 
       //Access modal data object
-      var modal = modalInstance.$$modal;
-      var numModals = $modalStack.numOpen() + 1;
+      let modal = modalInstance.$$modal;
+      let numModals = $modalStack.numOpen() + 1;
 
       //Create then compile modal element
       modal.element = angular.element('<div></div>').attr({
-        class: modal.wrapperClass
+        class: modal.wrapperClass,
       }).html(modal.content);
       modal.element = $compile(modal.element)(modal.scope);
       modal.element[0].style.zIndex = baseIndex + (2 * numModals) - 1;
@@ -311,8 +311,8 @@ angular.module('Modal.Service', [])
     function closeModal(modalInstance, result, wasDismissed) {
 
       //Access modal data object
-      var modal = modalInstance.$$modal;
-      var numModals = $modalStack.numOpen() - 1;
+      let modal = modalInstance.$$modal;
+      let numModals = $modalStack.numOpen() - 1;
 
       //No element present?
       if (!modal.element) {
@@ -321,7 +321,7 @@ angular.module('Modal.Service', [])
 
       //Call on before close handler if given
       if (typeof modal.onBeforeClose === 'function') {
-        var outcome = modal.onBeforeClose(modalInstance, result, wasDismissed);
+        let outcome = modal.onBeforeClose(modalInstance, result, wasDismissed);
         if (outcome !== true && outcome !== undefined) {
           return $q.reject(outcome || 'Close prevented');
         }
@@ -368,7 +368,7 @@ angular.module('Modal.Service', [])
     /**
      * Class definition
      */
-    var Modal = {
+    let Modal = {
 
       /**
        * Open a new modal
@@ -405,7 +405,7 @@ angular.module('Modal.Service', [])
         }
 
         //Prepare modal data object
-        var modal = {
+        let modal = {
           openedDeferred: $q.defer(),
           resultDeferred: $q.defer(),
           parent: options.appendTo,
@@ -413,11 +413,11 @@ angular.module('Modal.Service', [])
           overlayClass: options.overlayClass,
           showOverlay: options.overlay,
           closeOnClick: options.closeOnClick,
-          onBeforeClose: options.onBeforeClose
+          onBeforeClose: options.onBeforeClose,
         };
 
         //Create modal instance interface
-        var modalInstance = {
+        let modalInstance = {
           $$modal: modal,
           name: name,
           opened: modal.openedDeferred.promise,
@@ -427,13 +427,13 @@ angular.module('Modal.Service', [])
           },
           dismiss: function(reason) {
             return closeModal(modalInstance, reason, true);
-          }
+          },
         };
 
         //Close on escape?
         if (options.closeOnEsc) {
           modal.closeOnEsc = function(event) {
-            var key = event.keyCode || event.which;
+            let key = event.keyCode || event.which;
             if (key === 27 && $modalStack.isLast(name)) {
               $rootScope.$apply(function() {
                 closeModal(modalInstance, 'cancel', true);
@@ -445,8 +445,9 @@ angular.module('Modal.Service', [])
 
         //Enter broadcast
         modal.broadcastEnter = function(event) {
-          var key = event.keyCode || event.which;
-          if (key === 13 && !event.defaultPrevented) {
+          let key = event.keyCode || event.which;
+          let isTextarea = (event.target.tagName === 'TEXTAREA');
+          if (key === 13 && !event.defaultPrevented && !isTextarea) {
             $rootScope.$broadcast('$modalEnterKey', modalInstance, event);
           }
         };
@@ -454,7 +455,7 @@ angular.module('Modal.Service', [])
 
         //Wait for template and resolves to resolve
         $q.all([
-          getTemplatePromise(options.template, options.templateUrl)
+          getTemplatePromise(options.template, options.templateUrl),
         ].concat(getResolvePromises(options.resolve)))
           .then(function(resolves) {
 
@@ -470,7 +471,7 @@ angular.module('Modal.Service', [])
             if (options.controller) {
 
               //Initialize controller vars
-              var locals = {};
+              let locals = {};
 
               //Provide scope and modal instance
               locals.$scope = modal.scope;
@@ -511,7 +512,7 @@ angular.module('Modal.Service', [])
        * Close all modals
        */
       closeAll: function() {
-        var stack = $modalStack.get();
+        let stack = $modalStack.get();
         angular.forEach(stack, function(modalInstance) {
           closeModal(modalInstance, 'cancel', true);
         });
@@ -522,7 +523,7 @@ angular.module('Modal.Service', [])
        */
       isOpen: function(name) {
         return $modalStack.isOpen(name);
-      }
+      },
     };
 
     //Return the service
