@@ -108,7 +108,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
   .factory('$modalOverlay', ['$animate', '$document', '$appendAnimated', function $modalOverlay($animate, $document, $appendAnimated) {
 
     //Global overlay element
-    var overlayElement;
+    var overlayElement = void 0;
     var bodyElement = $document.find('body').eq(0);
 
     /**
@@ -447,7 +447,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           //Enter broadcast
           modal.broadcastEnter = function (event) {
             var key = event.keyCode || event.which;
-            if (key === 13 && !event.defaultPrevented) {
+            var isTextarea = event.target.tagName === 'TEXTAREA';
+            if (key === 13 && !event.defaultPrevented && !isTextarea) {
               $rootScope.$broadcast('$modalEnterKey', modalInstance, event);
             }
           };
@@ -466,31 +467,33 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             //Controller given?
             if (options.controller) {
+              (function () {
 
-              //Initialize controller vars
-              var locals = {};
+                //Initialize controller vars
+                var locals = {};
 
-              //Provide scope and modal instance
-              locals.$scope = modal.scope;
-              locals.$modalInstance = modalInstance;
+                //Provide scope and modal instance
+                locals.$scope = modal.scope;
+                locals.$modalInstance = modalInstance;
 
-              //Provide other passed locals
-              if (options.locals && _typeof(options.locals) === 'object') {
-                angular.forEach(options.locals, function (value, key) {
-                  locals[key] = value;
+                //Provide other passed locals
+                if (options.locals && _typeof(options.locals) === 'object') {
+                  angular.forEach(options.locals, function (value, key) {
+                    locals[key] = value;
+                  });
+                }
+
+                //Provide resolved values
+                angular.forEach(options.resolve, function (value, key) {
+                  locals[key] = resolves.shift();
                 });
-              }
 
-              //Provide resolved values
-              angular.forEach(options.resolve, function (value, key) {
-                locals[key] = resolves.shift();
-              });
-
-              //Create controller instance
-              modal.controller = $controller(options.controller, locals);
-              if (options.controllerAs) {
-                modal.scope[options.controllerAs] = modal.controller;
-              }
+                //Create controller instance
+                modal.controller = $controller(options.controller, locals);
+                if (options.controllerAs) {
+                  modal.scope[options.controllerAs] = modal.controller;
+                }
+              })();
             }
 
             //Open modal now
