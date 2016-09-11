@@ -109,7 +109,7 @@ $scope.$on('$modalEnterKey', function(modalInstance, event) {
 The following configuration options are available, along with their default values:
 
 ```js
-var modalOptions = {
+let modalOptions = {
   closeOnEsc: true,
   closeOnClick: true,
   template: null,
@@ -121,8 +121,8 @@ var modalOptions = {
   locals: null,
   appendTo: null,
   overlay: true,
-  wrapperClass: 'modal-wrapper',
-  overlayClass: 'modal-overlay',
+  wrapperClass: 'modal-wrapper ModalWrapper',
+  overlayClass: 'modal-overlay ModalOverlay',
   onBeforeClose: null
 };
 ```
