@@ -105,7 +105,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
   /**
    * Modal overlay service
    */
-  .factory('$modalOverlay', ['$animate', '$document', '$appendAnimated', function $modalOverlay($animate, $document, $appendAnimated) {
+  .factory('$modalOverlay', ['$animate', '$document', '$appendAnimated', function ($animate, $document, $appendAnimated) {
 
     //Global overlay element
     var overlayElement = void 0;
@@ -190,8 +190,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       locals: null,
       appendTo: null,
       overlay: true,
-      wrapperClass: 'modal-wrapper',
-      overlayClass: 'modal-overlay',
+      wrapperClass: 'modal-wrapper ModalWrapper',
+      overlayClass: 'modal-overlay ModalOverlay',
       onBeforeClose: null
     };
 
@@ -398,11 +398,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
           //Must have either template or template url specified
           if (!options.template && !options.templateUrl) {
-            throw new Error('One of template or templateUrl options is required.');
+            throw new Error('One of template or templateUrl options is required');
           }
 
           if (!options.appendTo.length) {
-            throw new Error('Element to append modal to not found in the DOM.');
+            throw new Error('Element to append modal to not found in the DOM');
           }
 
           //Prepare modal data object
