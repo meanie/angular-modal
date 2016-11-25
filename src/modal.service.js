@@ -306,9 +306,9 @@ angular.module('Modal.Service', [])
     }
 
     /**
-     * Helper to close a modal
+     * Helper to actually close modal after confirmed
      */
-    function closeModal(modalInstance, result, wasDismissed) {
+    function confirmCloseModal(modalInstance, result, wasDismissed) {
 
       //Access modal data object
       let modal = modalInstance.$$modal;
@@ -317,14 +317,6 @@ angular.module('Modal.Service', [])
       //No element present?
       if (!modal.element) {
         return $q.when(true);
-      }
-
-      //Call on before close handler if given
-      if (typeof modal.onBeforeClose === 'function') {
-        let outcome = modal.onBeforeClose(modalInstance, result, wasDismissed);
-        if (outcome !== true && outcome !== undefined) {
-          return $q.reject(outcome || 'Close prevented');
-        }
       }
 
       //Did we get a result
@@ -363,6 +355,41 @@ angular.module('Modal.Service', [])
           modal.closeOnEsc = null;
         }
       });
+    }
+
+    /**
+     * Helper to close a modal
+     */
+    function closeModal(modalInstance, result, wasDismissed) {
+
+      //Access modal data object
+      let modal = modalInstance.$$modal;
+
+      //No element present?
+      if (!modal.element) {
+        return $q.when(true);
+      }
+
+      //Call on before close handler if given
+      if (typeof modal.onBeforeClose === 'function') {
+
+        //Get outcome
+        let outcome = modal.onBeforeClose(modalInstance, result, wasDismissed);
+
+        //Handle promise
+        if (outcome && typeof outcome.then === 'function') {
+          return outcome
+            .then(() => confirmCloseModal(modalInstance, result, wasDismissed));
+        }
+
+        //Handle other reject reasons
+        if (typeof outcome !== 'undefined' && outcome !== true) {
+          return $q.reject(outcome || 'Close prevented');
+        }
+      }
+
+      //Confirm
+      return confirmCloseModal(modalInstance, result, wasDismissed);
     }
 
     /**
