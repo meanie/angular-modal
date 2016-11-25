@@ -383,6 +383,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           if (outcome && typeof outcome.then === 'function') {
             return outcome.then(function () {
               return confirmCloseModal(modalInstance, result, wasDismissed);
+            }).catch(function (reason) {
+              return $q.reject(reason || 'Close prevented');
             });
           }
 
