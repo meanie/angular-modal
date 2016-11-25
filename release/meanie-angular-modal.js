@@ -311,9 +311,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       }
 
       /**
-       * Helper to close a modal
+       * Helper to actually close modal after confirmed
        */
-      function closeModal(modalInstance, result, wasDismissed) {
+      function confirmCloseModal(modalInstance, result, wasDismissed) {
 
         //Access modal data object
         var modal = modalInstance.$$modal;
@@ -322,14 +322,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         //No element present?
         if (!modal.element) {
           return $q.when(true);
-        }
-
-        //Call on before close handler if given
-        if (typeof modal.onBeforeClose === 'function') {
-          var outcome = modal.onBeforeClose(modalInstance, result, wasDismissed);
-          if (outcome !== true && outcome !== undefined) {
-            return $q.reject(outcome || 'Close prevented');
-          }
         }
 
         //Did we get a result
@@ -366,6 +358,42 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             modal.closeOnEsc = null;
           }
         });
+      }
+
+      /**
+       * Helper to close a modal
+       */
+      function closeModal(modalInstance, result, wasDismissed) {
+
+        //Access modal data object
+        var modal = modalInstance.$$modal;
+
+        //No element present?
+        if (!modal.element) {
+          return $q.when(true);
+        }
+
+        //Call on before close handler if given
+        if (typeof modal.onBeforeClose === 'function') {
+
+          //Get outcome
+          var outcome = modal.onBeforeClose(modalInstance, result, wasDismissed);
+
+          //Handle promise
+          if (outcome && typeof outcome.then === 'function') {
+            return outcome.then(function () {
+              return confirmCloseModal(modalInstance, result, wasDismissed);
+            });
+          }
+
+          //Handle other reject reasons
+          if (typeof outcome !== 'undefined' && outcome !== true) {
+            return $q.reject(outcome || 'Close prevented');
+          }
+        }
+
+        //Confirm
+        return confirmCloseModal(modalInstance, result, wasDismissed);
       }
 
       /**
