@@ -379,7 +379,8 @@ angular.module('Modal.Service', [])
         //Handle promise
         if (outcome && typeof outcome.then === 'function') {
           return outcome
-            .then(() => confirmCloseModal(modalInstance, result, wasDismissed));
+            .then(() => confirmCloseModal(modalInstance, result, wasDismissed))
+            .catch(reason => $q.reject(reason || 'Close prevented'));
         }
 
         //Handle other reject reasons

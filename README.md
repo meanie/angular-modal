@@ -34,34 +34,42 @@ Open modals which are configured in run time:
 angular.module('App.MyModule').controller('MyController', function($modal) {
 
   //Create modal instance and open modal
-  var modalInstance = $modal.open({
+  let modalInstance = $modal.open({
     templateUrl: 'modals/myModal.html',
     controller: 'MyModalCtrl'
   });
 
   //Promise for opened gets resolved when the modal has loaded and opened successfully
-  modalInstance.opened.then(function() {
-    //modal is open and fully loaded, including resolved dependencies
-  });
+  modalInstance.opened
+    .then(() => {
+      //modal is open and fully loaded, including resolved dependencies
+    });
 
   //When closed with a result, the result promise gets resolved
-  modalInstance.result.then(function(result) {
-    //do something with the result
-  });
+  modalInstance.result
+    .then(result => {
+      //do something with the result
+    });
 
   //Close the modal
-  modalInstance.close(result).then(function() {
-    //modal is closed with given result
-  }).catch(function(reason) {
-    //modal close was prevent for the given reason
-  });
+  modalInstance
+    .close(result)
+    .then(() => {
+      //modal was closed with given result
+    })
+    .catch(reason => {
+      //modal close was prevent for the given reason
+    });
 
   //Dismiss the modal
-  modalInstance.dismiss(reason).then(function() {
-    //modal dismissed with given reason
-  }).catch(function(reason) {
-    //modal dismissal was prevent for the given reason
-  });
+  modalInstance
+    .dismiss(reason)
+    .then(() => {
+      //modal dismissed with given reason
+    })
+    .catch(reason => {
+      //modal dismissal was prevent for the given reason
+    });
 
   //Close all open modals
   $modal.closeAll();
@@ -134,6 +142,12 @@ onBeforeClose: function(modalInstance, result, wasDismissed) {
 
   //Return true or nothing at all to allow the modal to be closed.
   return true;
+
+  //Return a promise to allow the modal to be closed after it resolves.
+  return $q.resolve();
+
+  //Return a promise that rejects to prevent the modal from closing.
+  return $q.reject('Something went wrong');
 
   //Return anything else to prevent closing the modal.
   //The value you return will be used as the reject reason for the
