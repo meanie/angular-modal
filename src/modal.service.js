@@ -401,7 +401,7 @@ angular.module('Modal.Service', [])
       /**
        * Open a new modal
        */
-      open: function(name, options) {
+      open: function(name, options, closeOthers) {
 
         //No name given?
         if (typeof name !== 'string') {
@@ -522,6 +522,11 @@ angular.module('Modal.Service', [])
               if (options.controllerAs) {
                 modal.scope[options.controllerAs] = modal.controller;
               }
+            }
+
+            //Close others?
+            if (closeOthers) {
+              Modal.closeAll();
             }
 
             //Open modal now
