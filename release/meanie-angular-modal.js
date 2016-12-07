@@ -1,7 +1,7 @@
 /**
  * meanie-angular-modal * https://github.com/meanie/angular-modal
  *
- * Copyright (c) 2016 Adam Buczynski <me@adambuczynski.com>
+ * Copyright (c) 2016 Adam Reis <adam@reis.nz>
  * License: MIT
  */
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -406,7 +406,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         /**
          * Open a new modal
          */
-        open: function open(name, options) {
+        open: function open(name, options, closeOthers) {
 
           //No name given?
           if (typeof name !== 'string') {
@@ -524,6 +524,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                   modal.scope[options.controllerAs] = modal.controller;
                 }
               })();
+            }
+
+            //Close others?
+            if (closeOthers) {
+              Modal.closeAll();
             }
 
             //Open modal now
