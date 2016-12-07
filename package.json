@@ -4,9 +4,9 @@
   "version": "1.8.1",
   "homepage": "https://github.com/meanie/angular-modal",
   "author": {
-    "name": "Adam Buczynski",
-    "email": "me@adambuczynski.com",
-    "url": "http://adambuczynski.com/"
+    "name": "Adam Reis",
+    "email": "adam@reis.nz",
+    "url": "http://adam.reis.nz"
   },
   "contributors": [],
   "license": "MIT",
@@ -28,15 +28,15 @@
     "postversion": "git push && git push --tags && npm publish"
   },
   "devDependencies": {
-    "babel-preset-es2015-without-strict": "^0.0.2",
-    "eslint": "^3.1.0",
+    "babel-preset-es2015-without-strict": "^0.0.4",
+    "eslint": "^3.11.1",
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-babel": "^6.1.2",
-    "gulp-concat": "^2.6.0",
+    "gulp-concat": "^2.6.1",
     "gulp-filter": "^4.0.0",
     "gulp-ng-annotate": "^2.0.0",
     "gulp-rename": "^1.2.2",
-    "gulp-sourcemaps": "^1.6.0",
+    "gulp-sourcemaps": "^1.9.1",
     "gulp-uglify": "^1.5.4",
     "gulp-wrapper": "^1.0.0"
   }

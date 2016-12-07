@@ -34,10 +34,16 @@ Open modals which are configured in run time:
 angular.module('App.MyModule').controller('MyController', function($modal) {
 
   //Create modal instance and open modal
-  let modalInstance = $modal.open({
+  const modalInstance = $modal.open({
     templateUrl: 'modals/myModal.html',
-    controller: 'MyModalCtrl'
+    controller: 'MyModalCtrl',
   });
+
+  //Create modal instance and open modal, closing any other open modals
+  const modalInstance = $modal.open({
+    templateUrl: 'modals/myModal.html',
+    controller: 'MyModalCtrl',
+  }, true);
 
   //Promise for opened gets resolved when the modal has loaded and opened successfully
   modalInstance.opened
@@ -84,15 +90,15 @@ angular.module('App.MyModule').config(function($modalProvider) {
   //Predefine a named modal
   $modalProvider.modal('myModal', {
     templateUrl: 'modals/myModal.html',
-    controller: 'MyModalCtrl'
+    controller: 'MyModalCtrl',
   });
 }).controller('MyController', function($modal) {
 
   //Open predefined modal from anywhere, passing optional override options
   $modal.open('myModal', {
     locals: {
-      someDep: someValue
-    }
+      someDep: someValue,
+    },
   });
 
   //Check if a named modal is open
@@ -117,7 +123,7 @@ $scope.$on('$modalEnterKey', function(modalInstance, event) {
 The following configuration options are available, along with their default values:
 
 ```js
-let modalOptions = {
+const modalOptions = {
   closeOnEsc: true,
   closeOnClick: true,
   template: null,
@@ -173,4 +179,4 @@ Pull requests are welcome! If you would like to contribute to Meanie, please che
 
 (MIT License)
 
-Copyright 2015-2016, [Adam Buczynski](http://adambuczynski.com)
+Copyright 2015-2017, [Adam Reis](http://adam.reis.nz)
