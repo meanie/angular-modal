@@ -522,6 +522,11 @@ angular.module('Modal.Service', [])
               if (options.controllerAs) {
                 modal.scope[options.controllerAs] = modal.controller;
               }
+
+              //Attach locals to controller
+              angular.forEach(options.locals, (value, key) => {
+                modal.controller[key] = value;
+              });
             }
 
             //Close others?
