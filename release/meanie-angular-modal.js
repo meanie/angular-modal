@@ -1,7 +1,7 @@
 /**
  * meanie-angular-modal * https://github.com/meanie/angular-modal
  *
- * Copyright (c) 2016 Adam Reis <adam@reis.nz>
+ * Copyright (c) 2017 Adam Reis <adam@reis.nz>
  * License: MIT
  */
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -523,6 +523,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 if (options.controllerAs) {
                   modal.scope[options.controllerAs] = modal.controller;
                 }
+
+                //Attach locals to controller
+                angular.forEach(options.locals, function (value, key) {
+                  modal.controller[key] = value;
+                });
               })();
             }
 
