@@ -304,6 +304,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
         //Append animated and resolve opened deferred
         return $appendAnimated(modal.element, modal.parent).then(function () {
+          if (modal.controller && modal.controller.$onInit) {
+            modal.controller.$onInit.call(modal.controller);
+          }
           modal.openedDeferred.resolve(true);
         }, function (reason) {
           modal.openedDeferred.reject(reason);
