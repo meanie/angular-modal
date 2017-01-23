@@ -298,11 +298,15 @@ angular.module('Modal.Service', [])
       }
 
       //Append animated and resolve opened deferred
-      return $appendAnimated(modal.element, modal.parent).then(function() {
-        modal.openedDeferred.resolve(true);
-      }, function(reason) {
-        modal.openedDeferred.reject(reason);
-      });
+      return $appendAnimated(modal.element, modal.parent)
+        .then(function() {
+          if (modal.controller && modal.controller.$onInit) {
+            modal.controller.$onInit.call(modal.controller);
+          }
+          modal.openedDeferred.resolve(true);
+        }, function(reason) {
+          modal.openedDeferred.reject(reason);
+        });
     }
 
     /**
