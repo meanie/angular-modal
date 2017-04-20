@@ -33,6 +33,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         return stack;
       },
 
+
       /**
        * Check if there are open instances
        */
@@ -40,12 +41,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         return stack.length === 0;
       },
 
+
       /**
        * Get number of modals that are open
        */
       numOpen: function numOpen() {
         return stack.length;
       },
+
 
       /**
        * Check if a specific modal is open
@@ -68,6 +71,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         return false;
       },
 
+
       /**
        * Check if a specific modal is last
        */
@@ -83,12 +87,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         return last.name === name;
       },
 
+
       /**
        * Add modal instance to stack
        */
       add: function add(modalInstance) {
         stack.push(modalInstance);
       },
+
 
       /**
        * Remove modal instance from stack
@@ -135,6 +141,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         return $appendAnimated(overlayElement, bodyElement);
       },
 
+
       /**
        * Hide overlay element
        */
@@ -144,6 +151,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           overlayElement = null;
         }
       },
+
 
       /**
        * Set the proper z-index
@@ -302,13 +310,22 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           $modalOverlay.setIndex(baseIndex, numModals);
         }
 
+        //Call controller on init now
+        if (modal.controller && modal.controller.$onInit) {
+          modal.controller.$onInit.call(modal.controller);
+        }
+
         //Append animated and resolve opened deferred
         return $appendAnimated(modal.element, modal.parent).then(function () {
-          if (modal.controller && modal.controller.$onInit) {
-            modal.controller.$onInit.call(modal.controller);
+
+          //Call controller $postLink
+          if (modal.controller && modal.controller.$postLink) {
+            modal.controller.$postLink.call(modal.controller);
           }
+
+          //Resolve open
           modal.openedDeferred.resolve(true);
-        }, function (reason) {
+        }).catch(function (reason) {
           modal.openedDeferred.reject(reason);
         });
       }
@@ -344,6 +361,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
         //Animate out
         return $animate.leave(modal.element).then(function () {
+
+          //Call controller on destroy now
+          if (modal.controller && modal.controller.$onDestroy) {
+            modal.controller.$onDestroy.call(modal.controller);
+          }
 
           //Clean up scope
           if (modal.scope) {
