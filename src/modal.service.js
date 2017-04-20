@@ -18,28 +18,28 @@ angular.module('Modal.Service', [])
     /**
      * Get modal instances stack
      */
-    get: function() {
+    get() {
       return stack;
     },
 
     /**
      * Check if there are open instances
      */
-    isEmpty: function() {
+    isEmpty() {
       return (stack.length === 0);
     },
 
     /**
      * Get number of modals that are open
      */
-    numOpen: function() {
+    numOpen() {
       return stack.length;
     },
 
     /**
      * Check if a specific modal is open
      */
-    isOpen: function(name) {
+    isOpen(name) {
 
       //Can't distinguish unnamed modals
       if (!name) {
@@ -60,7 +60,7 @@ angular.module('Modal.Service', [])
     /**
      * Check if a specific modal is last
      */
-    isLast: function(name) {
+    isLast(name) {
 
       //Can't distinguish unnamed modals or work with an empty stack
       if (!name || stack.length === 0) {
@@ -75,14 +75,14 @@ angular.module('Modal.Service', [])
     /**
      * Add modal instance to stack
      */
-    add: function(modalInstance) {
+    add(modalInstance) {
       stack.push(modalInstance);
     },
 
     /**
      * Remove modal instance from stack
      */
-    remove: function(modalInstance) {
+    remove(modalInstance) {
       let index = stack.indexOf(modalInstance);
       if (index > -1) {
         stack.splice(index, 1);
@@ -108,7 +108,7 @@ angular.module('Modal.Service', [])
     /**
      * Show overlay element
      */
-    show: function(overlayClass) {
+    show(overlayClass) {
 
       //Already visible?
       if (overlayElement) {
@@ -127,7 +127,7 @@ angular.module('Modal.Service', [])
     /**
      * Hide overlay element
      */
-    hide: function() {
+    hide() {
       if (overlayElement) {
         $animate.leave(overlayElement);
         overlayElement = null;
@@ -137,7 +137,7 @@ angular.module('Modal.Service', [])
     /**
      * Set the proper z-index
      */
-    setIndex: function(baseIndex, numModals) {
+    setIndex(baseIndex, numModals) {
       if (overlayElement) {
         let zIndex = baseIndex + 2 * (numModals - 1);
         overlayElement[0].style.zIndex = zIndex;
@@ -279,11 +279,11 @@ angular.module('Modal.Service', [])
 
       //Close on click?
       if (modal.closeOnClick) {
-        modal.element.on('click', function(event) {
+        modal.element.on('click', event => {
           if (event.target === event.currentTarget) {
             event.preventDefault();
             event.stopPropagation();
-            $rootScope.$apply(function() {
+            $rootScope.$apply(() => {
               closeModal(modalInstance, 'cancel', true);
             });
           }
@@ -297,14 +297,24 @@ angular.module('Modal.Service', [])
         $modalOverlay.setIndex(baseIndex, numModals);
       }
 
+      //Call controller on init now
+      if (modal.controller && modal.controller.$onInit) {
+        modal.controller.$onInit.call(modal.controller);
+      }
+
       //Append animated and resolve opened deferred
       return $appendAnimated(modal.element, modal.parent)
-        .then(function() {
-          if (modal.controller && modal.controller.$onInit) {
-            modal.controller.$onInit.call(modal.controller);
+        .then(() => {
+
+          //Call controller $postLink
+          if (modal.controller && modal.controller.$postLink) {
+            modal.controller.$postLink.call(modal.controller);
           }
+
+          //Resolve open
           modal.openedDeferred.resolve(true);
-        }, function(reason) {
+        })
+        .catch(reason => {
           modal.openedDeferred.reject(reason);
         });
     }
@@ -342,6 +352,11 @@ angular.module('Modal.Service', [])
 
       //Animate out
       return $animate.leave(modal.element).then(function() {
+
+        //Call controller on destroy now
+        if (modal.controller && modal.controller.$onDestroy) {
+          modal.controller.$onDestroy.call(modal.controller);
+        }
 
         //Clean up scope
         if (modal.scope) {
