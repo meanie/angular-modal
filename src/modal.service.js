@@ -174,7 +174,7 @@ angular.module('Modal.Service', [])
     templateUrl: null,
     scope: null,
     controller: null,
-    controllerAs: null,
+    controllerAs: '$ctrl',
     resolve: {},
     locals: null,
     appendTo: null,
