@@ -193,7 +193,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       templateUrl: null,
       scope: null,
       controller: null,
-      controllerAs: null,
+      controllerAs: '$ctrl',
       resolve: {},
       locals: null,
       appendTo: null,
