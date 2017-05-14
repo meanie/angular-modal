@@ -4,8 +4,27 @@
  * Copyright (c) 2017 Adam Reis <adam@reis.nz>
  * License: MIT
  */
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+(function (window, angular, undefined) {
+  'use strict';
+  /**
+   * Module definition and dependencies
+   */
 
+  angular.module('AppendAnimated.Service', [])
+
+  /**
+   * Append animated helper
+   */
+  .factory('$appendAnimated', ['$animate', function ($animate) {
+    return function (child, parent) {
+      var children = parent.children();
+      if (children.length > 0) {
+        return $animate.enter(child, parent, children[children.length - 1]);
+      }
+      return $animate.enter(child, parent);
+    };
+  }]);
+})(window, window.angular);
 (function (window, angular, undefined) {
   'use strict';
 
@@ -13,12 +32,79 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
    * Module definition and dependencies
    */
 
-  angular.module('Modal.Service', [])
+  angular.module('ModalOverlay.Service', ['AppendAnimated.Service'])
+
+  /**
+   * Modal overlay service
+   */
+  .factory('$modalOverlay', ['$animate', '$document', '$appendAnimated', function ($animate, $document, $appendAnimated) {
+
+    //Global overlay element
+    var overlayElement = void 0;
+    var bodyElement = $document.find('body').eq(0);
+
+    /**
+     * Modal overlay service
+     */
+    return {
+
+      /**
+       * Show overlay element
+       */
+
+      show: function show(overlayClass) {
+
+        //Already visible?
+        if (overlayElement) {
+          return;
+        }
+
+        //Create element
+        overlayElement = angular.element('<div></div>').attr({
+          class: overlayClass
+        });
+
+        //Animate in
+        return $appendAnimated(overlayElement, bodyElement);
+      },
+
+
+      /**
+       * Hide overlay element
+       */
+      hide: function hide() {
+        if (overlayElement) {
+          $animate.leave(overlayElement);
+          overlayElement = null;
+        }
+      },
+
+
+      /**
+       * Set the proper z-index
+       */
+      setIndex: function setIndex(baseIndex, numModals) {
+        if (overlayElement) {
+          var zIndex = baseIndex + 2 * (numModals - 1);
+          overlayElement[0].style.zIndex = zIndex;
+        }
+      }
+    };
+  }]);
+})(window, window.angular);
+(function (window, angular, undefined) {
+  'use strict';
+
+  /**
+   * Module definition and dependencies
+   */
+
+  angular.module('ModalStack.Service', [])
 
   /**
    * Modal stack service
    */
-  .factory('$modalStack', function $modalStack() {
+  .factory('$modalStack', function () {
 
     //Stack of modals
     var stack = [];
@@ -29,6 +115,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       /**
        * Get modal instances stack
        */
+
       get: function get() {
         return stack;
       },
@@ -106,77 +193,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         }
       }
     };
-  })
+  });
+})(window, window.angular);
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+(function (window, angular, undefined) {
+  'use strict';
 
   /**
-   * Modal overlay service
+   * Module definition and dependencies
    */
-  .factory('$modalOverlay', ['$animate', '$document', '$appendAnimated', function ($animate, $document, $appendAnimated) {
 
-    //Global overlay element
-    var overlayElement = void 0;
-    var bodyElement = $document.find('body').eq(0);
-
-    /**
-     * Modal overlay service
-     */
-    return {
-
-      /**
-       * Show overlay element
-       */
-      show: function show(overlayClass) {
-
-        //Already visible?
-        if (overlayElement) {
-          return;
-        }
-
-        //Create element
-        overlayElement = angular.element('<div></div>').attr({
-          class: overlayClass
-        });
-
-        //Animate in
-        return $appendAnimated(overlayElement, bodyElement);
-      },
-
-
-      /**
-       * Hide overlay element
-       */
-      hide: function hide() {
-        if (overlayElement) {
-          $animate.leave(overlayElement);
-          overlayElement = null;
-        }
-      },
-
-
-      /**
-       * Set the proper z-index
-       */
-      setIndex: function setIndex(baseIndex, numModals) {
-        if (overlayElement) {
-          var zIndex = baseIndex + 2 * (numModals - 1);
-          overlayElement[0].style.zIndex = zIndex;
-        }
-      }
-    };
-  }])
-
-  /**
-   * Append animated helper
-   */
-  .factory('$appendAnimated', ['$animate', function $appendAnimated($animate) {
-    return function (child, parent) {
-      var children = parent.children();
-      if (children.length > 0) {
-        return $animate.enter(child, parent, children[children.length - 1]);
-      }
-      return $animate.enter(child, parent);
-    };
-  }])
+  angular.module('Modal.Service', ['ModalStack.Service', 'ModalOverlay.Service', 'AppendAnimated.Service'])
 
   /**
    * Modal service
@@ -200,7 +230,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       overlay: true,
       wrapperClass: 'modal-wrapper ModalWrapper',
       overlayClass: 'modal-overlay ModalOverlay',
-      onBeforeClose: null
+      onBeforeClose: null,
+      once: false
     };
 
     /**
@@ -220,11 +251,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
      * Predefine a modal config
      */
     this.modal = function (name, config) {
+      var _this = this;
 
       //Object hash given?
       if (name && (typeof name === 'undefined' ? 'undefined' : _typeof(name)) === 'object') {
         angular.forEach(name, function (config, name) {
-          this.modal(name, config);
+          _this.modal(name, config);
         }, this);
         return;
       }
@@ -284,13 +316,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         var numModals = $modalStack.numOpen() + 1;
 
         //Create then compile modal element
-        modal.element = angular.element('<div></div>').attr({
-          class: modal.wrapperClass
-        }).html(modal.content);
+        modal.element = angular.element('<div></div>').attr({ class: modal.wrapperClass }).html(modal.content);
         modal.element = $compile(modal.element)(modal.scope);
         modal.element[0].style.zIndex = baseIndex + 2 * numModals - 1;
 
-        //Close on click?
+        //Close on click handler
+        //NOTE: This is applied on the base modal element, e.g. invisible
+        //background, not the overlay. This is because clicking on the overlay
+        //would then close all modals, which is probably not what you'd want.
         if (modal.closeOnClick) {
           modal.element.on('click', function (event) {
             if (event.target === event.currentTarget) {
@@ -326,7 +359,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           //Resolve open
           modal.openedDeferred.resolve(true);
         }).catch(function (reason) {
-          modal.openedDeferred.reject(reason);
+          return modal.openedDeferred.reject(reason);
         });
       }
 
@@ -431,6 +464,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         /**
          * Open a new modal
          */
+
         open: function open(name, options, closeOthers) {
 
           //No name given?
@@ -444,6 +478,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             options = angular.extend({}, configs[name], options || {});
           } else if (name) {
             throw new Error('String given as options, but config with name ' + name + ' was not predefined');
+          }
+
+          //Check if already open
+          if (name && options.once && $modalStack.isOpen(name)) {
+            return null;
           }
 
           //Validate options
@@ -490,7 +529,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           if (options.closeOnEsc) {
             modal.closeOnEsc = function (event) {
               var key = event.keyCode || event.which;
-              if (key === 27 && $modalStack.isLast(name)) {
+              if (key === 27 && (!name || $modalStack.isLast(name))) {
                 $rootScope.$apply(function () {
                   closeModal(modalInstance, 'cancel', true);
                 });
@@ -510,7 +549,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           $document[0].addEventListener('keydown', modal.broadcastEnter);
 
           //Wait for template and resolves to resolve
-          $q.all([getTemplatePromise(options.template, options.templateUrl)].concat(getResolvePromises(options.resolve))).then(function (resolves) {
+          $q.all([getTemplatePromise(options.template, options.templateUrl)].concat(_toConsumableArray(getResolvePromises(options.resolve)))).then(function (resolves) {
 
             //Get template content
             modal.content = resolves.shift();
@@ -572,6 +611,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           return modalInstance;
         },
 
+
         /**
          * Close all modals
          */
@@ -581,6 +621,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             closeModal(modalInstance, 'cancel', true);
           });
         },
+
 
         /**
          * Check if a specific modal is open
