@@ -2,162 +2,11 @@
 /**
  * Module definition and dependencies
  */
-angular.module('Modal.Service', [])
-
-/**
- * Modal stack service
- */
-.factory('$modalStack', function $modalStack() {
-
-  //Stack of modals
-  let stack = [];
-
-  //Modal stack interface
-  return {
-
-    /**
-     * Get modal instances stack
-     */
-    get() {
-      return stack;
-    },
-
-    /**
-     * Check if there are open instances
-     */
-    isEmpty() {
-      return (stack.length === 0);
-    },
-
-    /**
-     * Get number of modals that are open
-     */
-    numOpen() {
-      return stack.length;
-    },
-
-    /**
-     * Check if a specific modal is open
-     */
-    isOpen(name) {
-
-      //Can't distinguish unnamed modals
-      if (!name) {
-        return false;
-      }
-
-      //Check if open
-      for (let i = 0; i < stack.length; i++) {
-        if (stack[i].name === name) {
-          return true;
-        }
-      }
-
-      //Not open
-      return false;
-    },
-
-    /**
-     * Check if a specific modal is last
-     */
-    isLast(name) {
-
-      //Can't distinguish unnamed modals or work with an empty stack
-      if (!name || stack.length === 0) {
-        return false;
-      }
-
-      //Get last modal and compare name
-      let last = stack[stack.length - 1];
-      return (last.name === name);
-    },
-
-    /**
-     * Add modal instance to stack
-     */
-    add(modalInstance) {
-      stack.push(modalInstance);
-    },
-
-    /**
-     * Remove modal instance from stack
-     */
-    remove(modalInstance) {
-      let index = stack.indexOf(modalInstance);
-      if (index > -1) {
-        stack.splice(index, 1);
-      }
-    },
-  };
-})
-
-/**
- * Modal overlay service
- */
-.factory('$modalOverlay', function($animate, $document, $appendAnimated) {
-
-  //Global overlay element
-  let overlayElement;
-  let bodyElement = $document.find('body').eq(0);
-
-  /**
-   * Modal overlay service
-   */
-  return {
-
-    /**
-     * Show overlay element
-     */
-    show(overlayClass) {
-
-      //Already visible?
-      if (overlayElement) {
-        return;
-      }
-
-      //Create element
-      overlayElement = angular.element('<div></div>').attr({
-        class: overlayClass,
-      });
-
-      //Animate in
-      return $appendAnimated(overlayElement, bodyElement);
-    },
-
-    /**
-     * Hide overlay element
-     */
-    hide() {
-      if (overlayElement) {
-        $animate.leave(overlayElement);
-        overlayElement = null;
-      }
-    },
-
-    /**
-     * Set the proper z-index
-     */
-    setIndex(baseIndex, numModals) {
-      if (overlayElement) {
-        let zIndex = baseIndex + 2 * (numModals - 1);
-        overlayElement[0].style.zIndex = zIndex;
-      }
-    },
-  };
-})
-
-/**
- * Append animated helper
- */
-.factory('$appendAnimated', function $appendAnimated($animate) {
-  return function(child, parent) {
-    let children = parent.children();
-    if (children.length > 0) {
-      return $animate.enter(child, parent, children[children.length - 1]);
-    }
-    return $animate.enter(child, parent);
-  };
-})
+angular.module('Modal.Service', [
+  'ModalStack.Service',
+  'ModalOverlay.Service',
+  'AppendAnimated.Service',
+])
 
 /**
  * Modal service
@@ -182,6 +31,7 @@ angular.module('Modal.Service', [])
     wrapperClass: 'modal-wrapper ModalWrapper',
     overlayClass: 'modal-overlay ModalOverlay',
     onBeforeClose: null,
+    once: false,
   };
 
   /**
@@ -204,7 +54,7 @@ angular.module('Modal.Service', [])
 
     //Object hash given?
     if (name && typeof name === 'object') {
-      angular.forEach(name, function(config, name) {
+      angular.forEach(name, (config, name) => {
         this.modal(name, config);
       }, this);
       return;
@@ -225,12 +75,12 @@ angular.module('Modal.Service', [])
   ) {
 
     //Get defaults and configs
-    let baseIndex = 10000;
-    let defaults = this.defaults;
-    let configs = this.configs;
+    const baseIndex = 10000;
+    const defaults = this.defaults;
+    const configs = this.configs;
 
     //Get body element
-    let bodyElement = $document.find('body').eq(0);
+    const bodyElement = $document.find('body').eq(0);
 
     /**
      * Helper to get template promise
@@ -247,7 +97,7 @@ angular.module('Modal.Service', [])
      */
     function getResolvePromises(resolves) {
       let promises = [];
-      angular.forEach(resolves, function(item) {
+      angular.forEach(resolves, item => {
         if (angular.isFunction(item) || angular.isArray(item)) {
           promises.push($q.when($injector.invoke(item)));
         }
@@ -267,17 +117,21 @@ angular.module('Modal.Service', [])
     function openModal(modalInstance) {
 
       //Access modal data object
-      let modal = modalInstance.$$modal;
-      let numModals = $modalStack.numOpen() + 1;
+      const modal = modalInstance.$$modal;
+      const numModals = $modalStack.numOpen() + 1;
 
       //Create then compile modal element
-      modal.element = angular.element('<div></div>').attr({
-        class: modal.wrapperClass,
-      }).html(modal.content);
+      modal.element = angular
+        .element('<div></div>')
+        .attr({class: modal.wrapperClass})
+        .html(modal.content);
       modal.element = $compile(modal.element)(modal.scope);
       modal.element[0].style.zIndex = baseIndex + (2 * numModals) - 1;
 
-      //Close on click?
+      //Close on click handler
+      //NOTE: This is applied on the base modal element, e.g. invisible
+      //background, not the overlay. This is because clicking on the overlay
+      //would then close all modals, which is probably not what you'd want.
       if (modal.closeOnClick) {
         modal.element.on('click', event => {
           if (event.target === event.currentTarget) {
@@ -314,9 +168,7 @@ angular.module('Modal.Service', [])
           //Resolve open
           modal.openedDeferred.resolve(true);
         })
-        .catch(reason => {
-          modal.openedDeferred.reject(reason);
-        });
+        .catch(reason => modal.openedDeferred.reject(reason));
     }
 
     /**
@@ -351,29 +203,30 @@ angular.module('Modal.Service', [])
       }
 
       //Animate out
-      return $animate.leave(modal.element).then(function() {
+      return $animate.leave(modal.element)
+        .then(() => {
 
-        //Call controller on destroy now
-        if (modal.controller && modal.controller.$onDestroy) {
-          modal.controller.$onDestroy.call(modal.controller);
-        }
+          //Call controller on destroy now
+          if (modal.controller && modal.controller.$onDestroy) {
+            modal.controller.$onDestroy.call(modal.controller);
+          }
 
-        //Clean up scope
-        if (modal.scope) {
-          modal.scope.$destroy();
-          modal.scope = null;
-        }
+          //Clean up scope
+          if (modal.scope) {
+            modal.scope.$destroy();
+            modal.scope = null;
+          }
 
-        //Remove element reference
-        modal.element = null;
+          //Remove element reference
+          modal.element = null;
 
-        //Remove event listeners
-        $document[0].removeEventListener('keydown', modal.broadcastEnter);
-        if (modal.closeOnEsc) {
-          $document[0].removeEventListener('keydown', modal.closeOnEsc);
-          modal.closeOnEsc = null;
-        }
-      });
+          //Remove event listeners
+          $document[0].removeEventListener('keydown', modal.broadcastEnter);
+          if (modal.closeOnEsc) {
+            $document[0].removeEventListener('keydown', modal.closeOnEsc);
+            modal.closeOnEsc = null;
+          }
+        });
     }
 
     /**
@@ -420,7 +273,7 @@ angular.module('Modal.Service', [])
       /**
        * Open a new modal
        */
-      open: function(name, options, closeOthers) {
+      open(name, options, closeOthers) {
 
         //No name given?
         if (typeof name !== 'string') {
@@ -435,6 +288,11 @@ angular.module('Modal.Service', [])
         else if (name) {
           throw new Error('String given as options, but config with name ' +
             name + ' was not predefined');
+        }
+
+        //Check if already open
+        if (name && options.once && $modalStack.isOpen(name)) {
+          return null;
         }
 
         //Validate options
@@ -466,13 +324,13 @@ angular.module('Modal.Service', [])
         //Create modal instance interface
         let modalInstance = {
           $$modal: modal,
-          name: name,
+          name,
           opened: modal.openedDeferred.promise,
           result: modal.resultDeferred.promise,
-          close: function(result) {
+          close(result) {
             return closeModal(modalInstance, result);
           },
-          dismiss: function(reason) {
+          dismiss(reason) {
             return closeModal(modalInstance, reason, true);
           },
         };
@@ -481,8 +339,8 @@ angular.module('Modal.Service', [])
         if (options.closeOnEsc) {
           modal.closeOnEsc = function(event) {
             let key = event.keyCode || event.which;
-            if (key === 27 && $modalStack.isLast(name)) {
-              $rootScope.$apply(function() {
+            if (key === 27 && (!name || $modalStack.isLast(name))) {
+              $rootScope.$apply(() => {
                 closeModal(modalInstance, 'cancel', true);
               });
             }
@@ -503,8 +361,9 @@ angular.module('Modal.Service', [])
         //Wait for template and resolves to resolve
         $q.all([
           getTemplatePromise(options.template, options.templateUrl),
-        ].concat(getResolvePromises(options.resolve)))
-          .then(function(resolves) {
+          ...getResolvePromises(options.resolve),
+        ])
+          .then(resolves => {
 
             //Get template content
             modal.content = resolves.shift();
@@ -556,7 +415,7 @@ angular.module('Modal.Service', [])
             //Open modal now
             openModal(modalInstance);
           })
-          .catch(function(reason) {
+          .catch(reason => {
             modal.openedDeferred.reject(reason);
             modal.resultDeferred.reject(reason);
           });
@@ -568,7 +427,7 @@ angular.module('Modal.Service', [])
       /**
        * Close all modals
        */
-      closeAll: function() {
+      closeAll() {
         let stack = $modalStack.get();
         angular.forEach(stack, function(modalInstance) {
           closeModal(modalInstance, 'cancel', true);
@@ -578,7 +437,7 @@ angular.module('Modal.Service', [])
       /**
        * Check if a specific modal is open
        */
-      isOpen: function(name) {
+      isOpen(name) {
         return $modalStack.isOpen(name);
       },
     };
