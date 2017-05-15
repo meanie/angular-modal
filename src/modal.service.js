@@ -144,6 +144,43 @@ angular.module('Modal.Service', [
         });
       }
 
+      //Tabbing control
+      (function tabbingControl() {
+        const tabbableSelector =
+              'a[href], ' +
+              'area[href], ' +
+              'input:not([disabled]):not([tabindex=\'-1\']), ' +
+              'button:not([disabled]):not([tabindex=\'-1\']),' +
+              'select:not([disabled]):not([tabindex=\'-1\']), ' +
+              'textarea:not([disabled]):not([tabindex=\'-1\']), ' +
+              'iframe, object, embed, ' +
+              '*[tabindex]:not([tabindex=\'-1\']), ' +
+              '*[contenteditable=true]';
+
+        function isVisible(element) {
+          return !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
+        }
+
+        function focusElement(offset) {
+          let possibleFocussable = modal.element[0].querySelectorAll(tabbableSelector);
+          let focussable = Array.prototype.filter.call(modal.element[0].querySelectorAll(tabbableSelector), isVisible);
+          let index = focussable.indexOf(document.activeElement) + offset;
+          let target = index < 0 ? focussable.length - 1 : focussable.length > index ? index : 0;
+          focussable[target].focus();
+        }
+
+        modal.lockTabbing = function(event) {
+          let key = event.keyCode || event.which;
+          if (key === 9) {
+            focusElement(event.shiftKey ? -1 : 1);
+            event.preventDefault();
+            return false;
+          }
+        };
+
+        $document[0].addEventListener('keydown', modal.lockTabbing);
+      })();
+
       //Add to stack and show overlay
       $modalStack.add(modalInstance);
       if (modal.showOverlay) {
@@ -225,6 +262,10 @@ angular.module('Modal.Service', [
           if (modal.closeOnEsc) {
             $document[0].removeEventListener('keydown', modal.closeOnEsc);
             modal.closeOnEsc = null;
+          }
+          if (modal.lockTabbing) {
+            $document[0].removeEventListener('keydown', modal.lockTabbing);
+            modal.lockTabbing = null;
           }
         });
     }
