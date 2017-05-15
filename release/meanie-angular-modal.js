@@ -51,7 +51,6 @@
       /**
        * Show overlay element
        */
-
       show: function show(overlayClass) {
 
         //Already visible?
@@ -115,7 +114,6 @@
       /**
        * Get modal instances stack
        */
-
       get: function get() {
         return stack;
       },
@@ -195,7 +193,7 @@
     };
   });
 })(window, window.angular);
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -336,6 +334,34 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           });
         }
 
+        //Tabbing control
+        (function tabbingControl() {
+          var tabbableSelector = 'a[href], ' + 'area[href], ' + 'input:not([disabled]):not([tabindex=\'-1\']), ' + 'button:not([disabled]):not([tabindex=\'-1\']),' + 'select:not([disabled]):not([tabindex=\'-1\']), ' + 'textarea:not([disabled]):not([tabindex=\'-1\']), ' + 'iframe, object, embed, ' + '*[tabindex]:not([tabindex=\'-1\']), ' + '*[contenteditable=true]';
+
+          function isVisible(element) {
+            return !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
+          }
+
+          function focusElement(offset) {
+            var possibleFocussable = modal.element[0].querySelectorAll(tabbableSelector);
+            var focussable = Array.prototype.filter.call(modal.element[0].querySelectorAll(tabbableSelector), isVisible);
+            var index = focussable.indexOf(document.activeElement) + offset;
+            var target = index < 0 ? focussable.length - 1 : focussable.length > index ? index : 0;
+            focussable[target].focus();
+          }
+
+          modal.lockTabbing = function (event) {
+            var key = event.keyCode || event.which;
+            if (key === 9) {
+              focusElement(event.shiftKey ? -1 : 1);
+              event.preventDefault();
+              return false;
+            }
+          };
+
+          $document[0].addEventListener('keydown', modal.lockTabbing);
+        })();
+
         //Add to stack and show overlay
         $modalStack.add(modalInstance);
         if (modal.showOverlay) {
@@ -415,6 +441,10 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             $document[0].removeEventListener('keydown', modal.closeOnEsc);
             modal.closeOnEsc = null;
           }
+          if (modal.lockTabbing) {
+            $document[0].removeEventListener('keydown', modal.lockTabbing);
+            modal.lockTabbing = null;
+          }
         });
       }
 
@@ -464,7 +494,6 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         /**
          * Open a new modal
          */
-
         open: function open(name, options, closeOthers) {
 
           //No name given?
@@ -561,38 +590,36 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
             //Controller given?
             if (options.controller) {
-              (function () {
 
-                //Initialize controller vars
-                var locals = {};
+              //Initialize controller vars
+              var locals = {};
 
-                //Provide scope and modal instance
-                locals.$scope = modal.scope;
-                locals.$modalInstance = modalInstance;
+              //Provide scope and modal instance
+              locals.$scope = modal.scope;
+              locals.$modalInstance = modalInstance;
 
-                //Provide other passed locals
-                if (options.locals && _typeof(options.locals) === 'object') {
-                  angular.forEach(options.locals, function (value, key) {
-                    locals[key] = value;
-                  });
-                }
-
-                //Provide resolved values
-                angular.forEach(options.resolve, function (value, key) {
-                  locals[key] = resolves.shift();
-                });
-
-                //Create controller instance
-                modal.controller = $controller(options.controller, locals);
-                if (options.controllerAs) {
-                  modal.scope[options.controllerAs] = modal.controller;
-                }
-
-                //Attach locals to controller
+              //Provide other passed locals
+              if (options.locals && _typeof(options.locals) === 'object') {
                 angular.forEach(options.locals, function (value, key) {
-                  modal.controller[key] = value;
+                  locals[key] = value;
                 });
-              })();
+              }
+
+              //Provide resolved values
+              angular.forEach(options.resolve, function (value, key) {
+                locals[key] = resolves.shift();
+              });
+
+              //Create controller instance
+              modal.controller = $controller(options.controller, locals);
+              if (options.controllerAs) {
+                modal.scope[options.controllerAs] = modal.controller;
+              }
+
+              //Attach locals to controller
+              angular.forEach(options.locals, function (value, key) {
+                modal.controller[key] = value;
+              });
             }
 
             //Close others?
