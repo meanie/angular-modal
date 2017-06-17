@@ -51,7 +51,6 @@
       /**
        * Show overlay element
        */
-
       show: function show(overlayClass) {
 
         //Already visible?
@@ -115,7 +114,6 @@
       /**
        * Get modal instances stack
        */
-
       get: function get() {
         return stack;
       },
@@ -316,7 +314,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         var numModals = $modalStack.numOpen() + 1;
 
         //Create then compile modal element
-        modal.element = angular.element('<div></div>').attr({ class: modal.wrapperClass }).html(modal.content);
+        modal.element.attr({ class: modal.wrapperClass }).html(modal.content);
         modal.element = $compile(modal.element)(modal.scope);
         modal.element[0].style.zIndex = baseIndex + 2 * numModals - 1;
 
@@ -464,7 +462,6 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         /**
          * Open a new modal
          */
-
         open: function open(name, options, closeOthers) {
 
           //No name given?
@@ -508,7 +505,8 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             overlayClass: options.overlayClass,
             showOverlay: options.overlay,
             closeOnClick: options.closeOnClick,
-            onBeforeClose: options.onBeforeClose
+            onBeforeClose: options.onBeforeClose,
+            element: angular.element('<div></div>')
           };
 
           //Create modal instance interface
@@ -569,6 +567,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
                 //Provide scope and modal instance
                 locals.$scope = modal.scope;
                 locals.$modalInstance = modalInstance;
+                locals.$element = modal.element;
 
                 //Provide other passed locals
                 if (options.locals && _typeof(options.locals) === 'object') {
