@@ -121,8 +121,7 @@ angular.module('Modal.Service', [
       const numModals = $modalStack.numOpen() + 1;
 
       //Create then compile modal element
-      modal.element = angular
-        .element('<div></div>')
+      modal.element
         .attr({class: modal.wrapperClass})
         .html(modal.content);
       modal.element = $compile(modal.element)(modal.scope);
@@ -319,6 +318,7 @@ angular.module('Modal.Service', [
           showOverlay: options.overlay,
           closeOnClick: options.closeOnClick,
           onBeforeClose: options.onBeforeClose,
+          element: angular.element('<div></div>'),
         };
 
         //Create modal instance interface
@@ -382,6 +382,7 @@ angular.module('Modal.Service', [
               //Provide scope and modal instance
               locals.$scope = modal.scope;
               locals.$modalInstance = modalInstance;
+              locals.$element = modal.element;
 
               //Provide other passed locals
               if (options.locals && typeof options.locals === 'object') {
