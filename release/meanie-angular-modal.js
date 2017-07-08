@@ -368,7 +368,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       }
 
       /**
-       * Helper to actually close modal after confirmed
+       * Helper to actually close modal once confirmed
        */
       function confirmCloseModal(modalInstance, result, wasDismissed) {
 
@@ -381,11 +381,11 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           return $q.when(true);
         }
 
-        //If dismissed, pass in dismissal reason as second parameter
+        //If dismissed, use only closed deferred
         if (wasDismissed) {
-          modal.resultDeferred.resolve(null, result);
+          modal.closedDeferred.resolve(result);
         } else {
-          modal.resultDeferred.resolve(result, null);
+          modal.resultDeferred.resolve(result);
         }
 
         //Remove from stack
@@ -506,6 +506,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           //Prepare modal data object
           var modal = {
             openedDeferred: $q.defer(),
+            closedDeferred: $q.defer(),
             resultDeferred: $q.defer(),
             parent: options.appendTo,
             wrapperClass: options.wrapperClass,
@@ -521,11 +522,12 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             $$modal: modal,
             name: name,
             opened: modal.openedDeferred.promise,
+            closed: modal.closedDeferred.promise,
             result: modal.resultDeferred.promise,
-            close: function close(result) {
+            resolve: function resolve(result) {
               return closeModal(modalInstance, result);
             },
-            dismiss: function dismiss(reason) {
+            close: function close(reason) {
               return closeModal(modalInstance, reason, true);
             }
           };
@@ -559,10 +561,10 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             //Get template content
             modal.content = resolves.shift();
 
-            //Determine modal scope and link close/dismiss handlers
+            //Determine modal scope and link close/resolve handlers
             modal.scope = (options.scope || $rootScope).$new();
             modal.scope.$close = modalInstance.close;
-            modal.scope.$dismiss = modalInstance.dismiss;
+            modal.scope.$resolve = modalInstance.resolve;
 
             //Controller given?
             if (options.controller) {
