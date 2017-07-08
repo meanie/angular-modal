@@ -51,6 +51,7 @@
       /**
        * Show overlay element
        */
+
       show: function show(overlayClass) {
 
         //Already visible?
@@ -114,6 +115,7 @@
       /**
        * Get modal instances stack
        */
+
       get: function get() {
         return stack;
       },
@@ -210,6 +212,10 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
    * Modal service
    */
   .provider('$modal', function $modalProvider() {
+
+    //Reasons
+    var REASON_CANCEL = 'cancel';
+    var REASON_CLOSE_PREVENTED = 'close prevented';
 
     /**
      * Defaults
@@ -328,7 +334,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
               event.preventDefault();
               event.stopPropagation();
               $rootScope.$apply(function () {
-                closeModal(modalInstance, 'cancel', true);
+                closeModal(modalInstance, REASON_CANCEL, true);
               });
             }
           });
@@ -375,11 +381,11 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           return $q.when(true);
         }
 
-        //Did we get a result
+        //If dismissed, pass in dismissal reason as second parameter
         if (wasDismissed) {
-          modal.resultDeferred.reject(result);
+          modal.resultDeferred.resolve(null, result);
         } else {
-          modal.resultDeferred.resolve(result);
+          modal.resultDeferred.resolve(result, null);
         }
 
         //Remove from stack
@@ -440,13 +446,13 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             return outcome.then(function () {
               return confirmCloseModal(modalInstance, result, wasDismissed);
             }).catch(function (reason) {
-              return $q.reject(reason || 'Close prevented');
+              return $q.reject(reason || REASON_CLOSE_PREVENTED);
             });
           }
 
           //Handle other reject reasons
           if (typeof outcome !== 'undefined' && outcome !== true) {
-            return $q.reject(outcome || 'Close prevented');
+            return $q.reject(outcome || REASON_CLOSE_PREVENTED);
           }
         }
 
@@ -462,6 +468,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         /**
          * Open a new modal
          */
+
         open: function open(name, options, closeOthers) {
 
           //No name given?
@@ -529,7 +536,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
               var key = event.keyCode || event.which;
               if (key === 27 && (!name || $modalStack.isLast(name))) {
                 $rootScope.$apply(function () {
-                  closeModal(modalInstance, 'cancel', true);
+                  closeModal(modalInstance, REASON_CANCEL, true);
                 });
               }
             };
@@ -617,7 +624,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         closeAll: function closeAll() {
           var stack = $modalStack.get();
           angular.forEach(stack, function (modalInstance) {
-            closeModal(modalInstance, 'cancel', true);
+            closeModal(modalInstance, REASON_CANCEL, true);
           });
         },
 
