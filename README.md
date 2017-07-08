@@ -76,7 +76,7 @@ angular.module('App.MyModule').controller('MyController', function($modal) {
       //modal close was prevented for the given reason
     });
 
-  //Dismiss the modal
+  //Close the modal without result
   modalInstance
     .close(reason)
     .then(reason => {
