@@ -175,7 +175,7 @@ angular.module('Modal.Service', [
     }
 
     /**
-     * Helper to actually close modal after confirmed
+     * Helper to actually close modal once confirmed
      */
     function confirmCloseModal(modalInstance, result, wasDismissed) {
 
@@ -188,12 +188,12 @@ angular.module('Modal.Service', [
         return $q.when(true);
       }
 
-      //If dismissed, pass in dismissal reason as second parameter
+      //If dismissed, use only closed deferred
       if (wasDismissed) {
-        modal.resultDeferred.resolve(null, result);
+        modal.closedDeferred.resolve(result);
       }
       else {
-        modal.resultDeferred.resolve(result, null);
+        modal.resultDeferred.resolve(result);
       }
 
       //Remove from stack
@@ -314,8 +314,9 @@ angular.module('Modal.Service', [
         }
 
         //Prepare modal data object
-        let modal = {
+        const modal = {
           openedDeferred: $q.defer(),
+          closedDeferred: $q.defer(),
           resultDeferred: $q.defer(),
           parent: options.appendTo,
           wrapperClass: options.wrapperClass,
@@ -327,15 +328,16 @@ angular.module('Modal.Service', [
         };
 
         //Create modal instance interface
-        let modalInstance = {
+        const modalInstance = {
           $$modal: modal,
           name,
           opened: modal.openedDeferred.promise,
+          closed: modal.closedDeferred.promise,
           result: modal.resultDeferred.promise,
-          close(result) {
+          resolve(result) {
             return closeModal(modalInstance, result);
           },
-          dismiss(reason) {
+          close(reason) {
             return closeModal(modalInstance, reason, true);
           },
         };
@@ -343,7 +345,7 @@ angular.module('Modal.Service', [
         //Close on escape?
         if (options.closeOnEsc) {
           modal.closeOnEsc = function(event) {
-            let key = event.keyCode || event.which;
+            const key = event.keyCode || event.which;
             if (key === 27 && (!name || $modalStack.isLast(name))) {
               $rootScope.$apply(() => {
                 closeModal(modalInstance, REASON_CANCEL, true);
@@ -355,8 +357,8 @@ angular.module('Modal.Service', [
 
         //Enter broadcast
         modal.broadcastEnter = function(event) {
-          let key = event.keyCode || event.which;
-          let isTextarea = (event.target.tagName === 'TEXTAREA');
+          const key = event.keyCode || event.which;
+          const isTextarea = (event.target.tagName === 'TEXTAREA');
           if (key === 13 && !event.defaultPrevented && !isTextarea) {
             $rootScope.$broadcast('$modalEnterKey', modalInstance, event);
           }
@@ -373,16 +375,16 @@ angular.module('Modal.Service', [
             //Get template content
             modal.content = resolves.shift();
 
-            //Determine modal scope and link close/dismiss handlers
+            //Determine modal scope and link close/resolve handlers
             modal.scope = (options.scope || $rootScope).$new();
             modal.scope.$close = modalInstance.close;
-            modal.scope.$dismiss = modalInstance.dismiss;
+            modal.scope.$resolve = modalInstance.resolve;
 
             //Controller given?
             if (options.controller) {
 
               //Initialize controller vars
-              let locals = {};
+              const locals = {};
 
               //Provide scope and modal instance
               locals.$scope = modal.scope;
@@ -434,7 +436,7 @@ angular.module('Modal.Service', [
        * Close all modals
        */
       closeAll() {
-        let stack = $modalStack.get();
+        const stack = $modalStack.get();
         angular.forEach(stack, function(modalInstance) {
           closeModal(modalInstance, REASON_CANCEL, true);
         });

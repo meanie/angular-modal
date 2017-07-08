@@ -46,26 +46,29 @@ angular.module('App.MyModule').controller('MyController', function($modal) {
   }, true);
 
   //Promise for opened gets resolved when the modal has loaded and opened successfully
-  modalInstance.opened
+  modalInstance
+    .opened
     .then(() => {
       //modal is open and fully loaded, including resolved dependencies
     });
 
-  //When closed with a result, the result promise is resolved with a result
-  //When dismissed, the result promise is resolved with a dismissal reason
-  modalInstance.result
-    .then((result, reason) => {
-      if (reason) {
-        //modal was dismissed for given reason
-      }
-      else {
-        //modal was closed with given result
-      }
+  //When dismissed, the closed promise is resolved with a dismissal reason
+  modalInstance
+    .closed
+    .then(reason => {
+      //modal was closed due to given reason
     });
 
-  //Close the modal with a given result
+  //When closed with a result, the result promise is resolved with the result
   modalInstance
-    .close(result)
+    .result
+    .then(result => {
+      //modal was closed with given result
+    });
+
+  //Resolve the modal with a given result
+  modalInstance
+    .resolve(result)
     .then(result => {
       //modal was closed with given result
     })
@@ -75,12 +78,12 @@ angular.module('App.MyModule').controller('MyController', function($modal) {
 
   //Dismiss the modal
   modalInstance
-    .dismiss(reason)
-    .then((result, reason) => {
-      //modal dismissed with given reason, result will be null
+    .close(reason)
+    .then(reason => {
+      //modal dismissed with given reason
     })
     .catch(reason => {
-      //modal dismissal was prevent for the given reason
+      //modal dismissal was prevented for the given reason
     });
 
   //Close all open modals
