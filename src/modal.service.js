@@ -13,6 +13,10 @@ angular.module('Modal.Service', [
  */
 .provider('$modal', function $modalProvider() {
 
+  //Reasons
+  const REASON_CANCEL = 'cancel';
+  const REASON_CLOSE_PREVENTED = 'close prevented';
+
   /**
    * Defaults
    */
@@ -137,7 +141,7 @@ angular.module('Modal.Service', [
             event.preventDefault();
             event.stopPropagation();
             $rootScope.$apply(() => {
-              closeModal(modalInstance, 'cancel', true);
+              closeModal(modalInstance, REASON_CANCEL, true);
             });
           }
         });
@@ -176,20 +180,20 @@ angular.module('Modal.Service', [
     function confirmCloseModal(modalInstance, result, wasDismissed) {
 
       //Access modal data object
-      let modal = modalInstance.$$modal;
-      let numModals = $modalStack.numOpen() - 1;
+      const modal = modalInstance.$$modal;
+      const numModals = $modalStack.numOpen() - 1;
 
       //No element present?
       if (!modal.element) {
         return $q.when(true);
       }
 
-      //Did we get a result
+      //If dismissed, pass in dismissal reason as second parameter
       if (wasDismissed) {
-        modal.resultDeferred.reject(result);
+        modal.resultDeferred.resolve(null, result);
       }
       else {
-        modal.resultDeferred.resolve(result);
+        modal.resultDeferred.resolve(result, null);
       }
 
       //Remove from stack
@@ -202,7 +206,8 @@ angular.module('Modal.Service', [
       }
 
       //Animate out
-      return $animate.leave(modal.element)
+      return $animate
+        .leave(modal.element)
         .then(() => {
 
           //Call controller on destroy now
@@ -251,12 +256,12 @@ angular.module('Modal.Service', [
         if (outcome && typeof outcome.then === 'function') {
           return outcome
             .then(() => confirmCloseModal(modalInstance, result, wasDismissed))
-            .catch(reason => $q.reject(reason || 'Close prevented'));
+            .catch(reason => $q.reject(reason || REASON_CLOSE_PREVENTED));
         }
 
         //Handle other reject reasons
         if (typeof outcome !== 'undefined' && outcome !== true) {
-          return $q.reject(outcome || 'Close prevented');
+          return $q.reject(outcome || REASON_CLOSE_PREVENTED);
         }
       }
 
@@ -341,7 +346,7 @@ angular.module('Modal.Service', [
             let key = event.keyCode || event.which;
             if (key === 27 && (!name || $modalStack.isLast(name))) {
               $rootScope.$apply(() => {
-                closeModal(modalInstance, 'cancel', true);
+                closeModal(modalInstance, REASON_CANCEL, true);
               });
             }
           };
@@ -431,7 +436,7 @@ angular.module('Modal.Service', [
       closeAll() {
         let stack = $modalStack.get();
         angular.forEach(stack, function(modalInstance) {
-          closeModal(modalInstance, 'cancel', true);
+          closeModal(modalInstance, REASON_CANCEL, true);
         });
       },
 
