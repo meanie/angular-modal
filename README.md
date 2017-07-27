@@ -88,6 +88,20 @@ angular.module('App.MyModule').controller('MyController', function($modal) {
 
   //Close all open modals
   $modal.closeAll();
+
+  //Reject the result if modal is dismissed/closed
+  const modalInstance = $modal.open({
+    templateUrl: 'modals/myModal.html',
+    controller: 'MyModalCtrl',
+    rejectOnDismissal: true,
+  });
+
+  //Then, when closed or dismissed, the result promise is rejected
+  modalInstance
+    .result
+    .catch(reason => {
+      //modal was closed due to given reason
+    });
 });
 ```
 
