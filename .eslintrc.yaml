@@ -30,6 +30,7 @@ rules:
       VariableDeclarator:
         let: 2
         const: 3
+      MemberExpression: off
   semi:
     - error
     - always

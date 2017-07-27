@@ -36,6 +36,7 @@ angular.module('Modal.Service', [
     overlayClass: 'modal-overlay ModalOverlay',
     onBeforeClose: null,
     once: false,
+    rejectOnDismissal: false,
   };
 
   /**
@@ -191,6 +192,9 @@ angular.module('Modal.Service', [
       //If dismissed, use only closed deferred
       if (wasDismissed) {
         modal.closedDeferred.resolve(result);
+        if (modal.rejectOnDismissal) {
+          modal.resultDeferred.reject(result);
+        }
       }
       else {
         modal.resultDeferred.resolve(result);
