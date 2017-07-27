@@ -235,7 +235,8 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       wrapperClass: 'modal-wrapper ModalWrapper',
       overlayClass: 'modal-overlay ModalOverlay',
       onBeforeClose: null,
-      once: false
+      once: false,
+      rejectOnDismissal: false
     };
 
     /**
@@ -384,6 +385,9 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         //If dismissed, use only closed deferred
         if (wasDismissed) {
           modal.closedDeferred.resolve(result);
+          if (modal.rejectOnDismissal) {
+            modal.resultDeferred.reject(result);
+          }
         } else {
           modal.resultDeferred.resolve(result);
         }
@@ -504,18 +508,14 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           }
 
           //Prepare modal data object
-          var modal = {
+          var modal = Object.assign({
             openedDeferred: $q.defer(),
             closedDeferred: $q.defer(),
             resultDeferred: $q.defer(),
             parent: options.appendTo,
-            wrapperClass: options.wrapperClass,
-            overlayClass: options.overlayClass,
             showOverlay: options.overlay,
-            closeOnClick: options.closeOnClick,
-            onBeforeClose: options.onBeforeClose,
             element: angular.element('<div></div>')
-          };
+          }, options);
 
           //Create modal instance interface
           var modalInstance = {
