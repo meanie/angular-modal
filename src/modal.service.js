@@ -318,18 +318,14 @@ angular.module('Modal.Service', [
         }
 
         //Prepare modal data object
-        const modal = {
+        const modal = Object.assign({
           openedDeferred: $q.defer(),
           closedDeferred: $q.defer(),
           resultDeferred: $q.defer(),
           parent: options.appendTo,
-          wrapperClass: options.wrapperClass,
-          overlayClass: options.overlayClass,
           showOverlay: options.overlay,
-          closeOnClick: options.closeOnClick,
-          onBeforeClose: options.onBeforeClose,
           element: angular.element('<div></div>'),
-        };
+        }, options);
 
         //Create modal instance interface
         const modalInstance = {
