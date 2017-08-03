@@ -348,23 +348,21 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           $modalOverlay.setIndex(baseIndex, numModals);
         }
 
-        //Call controller on init now
+        //Call controller $onInit
         if (modal.controller && modal.controller.$onInit) {
           modal.controller.$onInit.call(modal.controller);
         }
 
-        //Append animated and resolve opened deferred
+        //Resolve open
+        modal.openedDeferred.resolve(true);
+
+        //Append animated
         return $appendAnimated(modal.element, modal.parent).then(function () {
 
           //Call controller $postLink
           if (modal.controller && modal.controller.$postLink) {
             modal.controller.$postLink.call(modal.controller);
           }
-
-          //Resolve open
-          modal.openedDeferred.resolve(true);
-        }).catch(function (reason) {
-          return modal.openedDeferred.reject(reason);
         });
       }
 
