@@ -597,7 +597,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
                 }
 
                 //Attach locals to controller
-                angular.forEach(options.locals, function (value, key) {
+                angular.forEach(locals, function (value, key) {
                   modal.controller[key] = value;
                 });
               })();
