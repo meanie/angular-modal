@@ -410,7 +410,7 @@ angular.module('Modal.Service', [
               }
 
               //Attach locals to controller
-              angular.forEach(options.locals, (value, key) => {
+              angular.forEach(locals, (value, key) => {
                 modal.controller[key] = value;
               });
             }
