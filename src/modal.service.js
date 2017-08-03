@@ -155,12 +155,15 @@ angular.module('Modal.Service', [
         $modalOverlay.setIndex(baseIndex, numModals);
       }
 
-      //Call controller on init now
+      //Call controller $onInit
       if (modal.controller && modal.controller.$onInit) {
         modal.controller.$onInit.call(modal.controller);
       }
 
-      //Append animated and resolve opened deferred
+      //Resolve open
+      modal.openedDeferred.resolve(true);
+
+      //Append animated
       return $appendAnimated(modal.element, modal.parent)
         .then(() => {
 
@@ -168,11 +171,7 @@ angular.module('Modal.Service', [
           if (modal.controller && modal.controller.$postLink) {
             modal.controller.$postLink.call(modal.controller);
           }
-
-          //Resolve open
-          modal.openedDeferred.resolve(true);
-        })
-        .catch(reason => modal.openedDeferred.reject(reason));
+        });
     }
 
     /**
