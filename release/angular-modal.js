@@ -1,5 +1,5 @@
 /**
- * meanie-angular-modal * https://github.com/meanie/angular-modal
+ * @meanie/angular-modal * https://github.com/meanie/angular-modal
  *
  * Copyright (c) 2017 Adam Reis <adam@reis.nz>
  * License: MIT
@@ -51,7 +51,6 @@
       /**
        * Show overlay element
        */
-
       show: function show(overlayClass) {
 
         //Already visible?
@@ -115,7 +114,6 @@
       /**
        * Get modal instances stack
        */
-
       get: function get() {
         return stack;
       },
@@ -195,7 +193,7 @@
     };
   });
 })(window, window.angular);
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -470,7 +468,6 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         /**
          * Open a new modal
          */
-
         open: function open(name, options, closeOthers) {
 
           //No name given?
@@ -566,39 +563,38 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
             //Controller given?
             if (options.controller) {
-              (function () {
 
-                //Initialize controller vars
-                var locals = {};
+              //Initialize controller vars
+              var locals = {};
 
-                //Provide scope and modal instance
-                locals.$scope = modal.scope;
-                locals.$modalInstance = modalInstance;
-                locals.$element = modal.element;
+              //Provide scope and modal instance
+              locals.$scope = modal.scope;
+              locals.$modalInstance = modalInstance;
+              locals.$element = modal.element;
 
-                //Provide other passed locals
-                if (options.locals && _typeof(options.locals) === 'object') {
-                  angular.forEach(options.locals, function (value, key) {
-                    locals[key] = value;
-                  });
-                }
-
-                //Provide resolved values
-                angular.forEach(options.resolve, function (value, key) {
-                  locals[key] = resolves.shift();
+              //Provide other passed locals
+              if (options.locals && _typeof(options.locals) === 'object') {
+                angular.forEach(options.locals, function (value, key) {
+                  locals[key] = value;
                 });
+              }
 
-                //Create controller instance
-                modal.controller = $controller(options.controller, locals);
-                if (options.controllerAs) {
-                  modal.scope[options.controllerAs] = modal.controller;
-                }
+              //Provide resolved values
+              //eslint-disable-next-line no-unused-vars
+              angular.forEach(options.resolve, function (value, key) {
+                locals[key] = resolves.shift();
+              });
 
-                //Attach locals to controller
-                angular.forEach(locals, function (value, key) {
-                  modal.controller[key] = value;
-                });
-              })();
+              //Create controller instance
+              modal.controller = $controller(options.controller, locals);
+              if (options.controllerAs) {
+                modal.scope[options.controllerAs] = modal.controller;
+              }
+
+              //Attach locals to controller
+              angular.forEach(locals, function (value, key) {
+                modal.controller[key] = value;
+              });
             }
 
             //Close others?

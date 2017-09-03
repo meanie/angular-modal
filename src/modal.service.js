@@ -398,6 +398,7 @@ angular.module('Modal.Service', [
               }
 
               //Provide resolved values
+              //eslint-disable-next-line no-unused-vars
               angular.forEach(options.resolve, function(value, key) {
                 locals[key] = resolves.shift();
               });
