@@ -1,7 +1,7 @@
 /**
  * @meanie/angular-modal * https://github.com/meanie/angular-modal
  *
- * Copyright (c) 2017 Adam Reis <adam@reis.nz>
+ * Copyright (c) 2018 Adam Reis <adam@reis.nz>
  * License: MIT
  */
 (function (window, angular, undefined) {
@@ -112,10 +112,12 @@
     return {
 
       /**
-       * Get modal instances stack
+       * Get modal instances stack (copy of the array)
        */
       get: function get() {
-        return stack;
+        return stack.map(function (instance) {
+          return instance;
+        });
       },
 
 
