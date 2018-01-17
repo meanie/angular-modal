@@ -16,10 +16,10 @@ angular.module('ModalStack.Service', [])
   return {
 
     /**
-     * Get modal instances stack
+     * Get modal instances stack (copy of the array)
      */
     get() {
-      return stack;
+      return stack.map(instance => instance);
     },
 
     /**
