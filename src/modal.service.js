@@ -435,10 +435,10 @@ angular.module('Modal.Service', [
       /**
        * Close all modals
        */
-      closeAll() {
+      closeAll(reason) {
         const stack = $modalStack.get();
         angular.forEach(stack, function(modalInstance) {
-          closeModal(modalInstance, REASON_CANCEL, true);
+          closeModal(modalInstance, reason || REASON_CANCEL, true);
         });
       },
 
