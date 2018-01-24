@@ -619,10 +619,10 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         /**
          * Close all modals
          */
-        closeAll: function closeAll() {
+        closeAll: function closeAll(reason) {
           var stack = $modalStack.get();
           angular.forEach(stack, function (modalInstance) {
-            closeModal(modalInstance, REASON_CANCEL, true);
+            closeModal(modalInstance, reason || REASON_CANCEL, true);
           });
         },
 
