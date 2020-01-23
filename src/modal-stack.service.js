@@ -46,9 +46,14 @@ angular.module('ModalStack.Service', [])
         return false;
       }
 
+      //Ensure array
+      if (!Array.isArray(name)) {
+        name = [name];
+      }
+
       //Check if open
-      for (let i = 0; i < stack.length; i++) {
-        if (stack[i].name === name) {
+      for (const modal of stack) {
+        if (name.includes(modal.name)) {
           return true;
         }
       }
