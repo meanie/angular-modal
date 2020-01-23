@@ -39,7 +39,17 @@ angular.module('ModalStack.Service', [])
     /**
      * Check if a specific modal is open
      */
-    isOpen(...name) {
+    isOpen(name) {
+
+      //Can't distinguish unnamed modals
+      if (!name) {
+        return false;
+      }
+
+      //Ensure array
+      if (!Array.isArray(name)) {
+        name = [name];
+      }
 
       //Check if open
       for (const modal of stack) {
