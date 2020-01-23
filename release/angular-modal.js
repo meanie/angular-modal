@@ -1,7 +1,7 @@
 /**
  * @meanie/angular-modal * https://github.com/meanie/angular-modal
  *
- * Copyright (c) 2018 Adam Reis <adam@reis.nz>
+ * Copyright (c) 2020 Adam Reis <adam@reis.nz>
  * License: MIT
  */
 (function (window, angular, undefined) {
@@ -147,14 +147,41 @@
           return false;
         }
 
+        //Ensure array
+        if (!Array.isArray(name)) {
+          name = [name];
+        }
+
         //Check if open
-        for (var i = 0; i < stack.length; i++) {
-          if (stack[i].name === name) {
-            return true;
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+          for (var _iterator = stack[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var modal = _step.value;
+
+            if (name.includes(modal.name)) {
+              return true;
+            }
+          }
+
+          //Not open
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+              _iterator.return();
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
           }
         }
 
-        //Not open
         return false;
       },
 
@@ -195,7 +222,7 @@
     };
   });
 })(window, window.angular);
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -565,38 +592,40 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
             //Controller given?
             if (options.controller) {
+              (function () {
 
-              //Initialize controller vars
-              var locals = {};
+                //Initialize controller vars
+                var locals = {};
 
-              //Provide scope and modal instance
-              locals.$scope = modal.scope;
-              locals.$modalInstance = modalInstance;
-              locals.$element = modal.element;
+                //Provide scope and modal instance
+                locals.$scope = modal.scope;
+                locals.$modalInstance = modalInstance;
+                locals.$element = modal.element;
 
-              //Provide other passed locals
-              if (options.locals && _typeof(options.locals) === 'object') {
-                angular.forEach(options.locals, function (value, key) {
-                  locals[key] = value;
+                //Provide other passed locals
+                if (options.locals && _typeof(options.locals) === 'object') {
+                  angular.forEach(options.locals, function (value, key) {
+                    locals[key] = value;
+                  });
+                }
+
+                //Provide resolved values
+                //eslint-disable-next-line no-unused-vars
+                angular.forEach(options.resolve, function (value, key) {
+                  locals[key] = resolves.shift();
                 });
-              }
 
-              //Provide resolved values
-              //eslint-disable-next-line no-unused-vars
-              angular.forEach(options.resolve, function (value, key) {
-                locals[key] = resolves.shift();
-              });
+                //Create controller instance
+                modal.controller = $controller(options.controller, locals);
+                if (options.controllerAs) {
+                  modal.scope[options.controllerAs] = modal.controller;
+                }
 
-              //Create controller instance
-              modal.controller = $controller(options.controller, locals);
-              if (options.controllerAs) {
-                modal.scope[options.controllerAs] = modal.controller;
-              }
-
-              //Attach locals to controller
-              angular.forEach(locals, function (value, key) {
-                modal.controller[key] = value;
-              });
+                //Attach locals to controller
+                angular.forEach(locals, function (value, key) {
+                  modal.controller[key] = value;
+                });
+              })();
             }
 
             //Close others?
